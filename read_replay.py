@@ -213,7 +213,7 @@ post_frame_data = post_frame_event()
 game_end_data = game_end_event()
 
 #main method
-full_filename = "Game_20171221T170535.slp"
+full_filename = "Game_20171221T170535.slp" #filename for replay
 with open(full_filename, "rb") as replay:
     #raw element read
     print("RAW ELEMENT: ", replay.read(11))
