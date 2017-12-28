@@ -3,81 +3,11 @@
 
 from ast import literal_eval
 import struct
+import translator
+import structures
 
-#TODO separate structures and parsers into different files
-
-#command bytes
-EVENT_PAYLOADS = "0x35"
-GAME_START = "0x36"
-PRE_FRAME_UPDATE = "0x37"
-POST_FRAME_UPDATE = "0x38"
-GAME_END = "0x39"
-
-#event data holders
-class game_start_event:
-    command_byte = GAME_START
-    version = [] #major.minor.build.revision
-    game_info_block = [] #not sure what this is
-    is_teams = 0
-    stage = 0
-    character_ID_port1 = 0
-    character_ID_port2 = 0
-    character_ID_port3 = 0
-    character_ID_port4 = 0
-    player_type_port1 = 0
-    player_type_port2 = 0
-    player_type_port3 = 0
-    player_type_port4 = 0
-    character_color_port1 = 0
-    character_color_port2 = 0
-    character_color_port3 = 0
-    character_color_port4 = 0
-    team_ID_port1 = 0
-    team_ID_port2 = 0
-    team_ID_port3 = 0
-    team_ID_port4 = 0
-    random_seed = 0
-
-class pre_frame_event:
-    command_byte = PRE_FRAME_UPDATE
-    frame_number = 0
-    player_index = 0 #port is this +1
-    is_follower = 0
-    random_seed = 0
-    action_state = 0
-    x_pos = 0.0
-    y_pos = 0.0
-    facing_direction = 0.0
-    joystick_x = 0.0
-    joystick_y = 0.0
-    c_stick_x = 0.0
-    c_stick_y = 0.0
-    trigger = 0.0
-    buttons = 0
-    physical_buttons = 0
-    physical_l = 0.0
-    physical_r = 0.0
-
-class post_frame_event:
-    command_byte = PRE_FRAME_UPDATE
-    frame_number = 0
-    player_index = 0
-    is_follower = 0
-    character_ID = 0
-    action_state = 0
-    x_pos = 0.0
-    y_pos = 0.0
-    facing_direction = 0.0
-    percent = 0.0
-    shield_size = 0.0
-    last_attack_landed = 0
-    current_combo_count = 0
-    last_hit_by = 0
-    stocks_remaining = 0
-
-class game_end_event:
-    command_byte = GAME_END
-    game_end_method = 0
+#TODO parsers in their own file
+#TODO clean up main method
 
 #constructs hex string from list of bytes
 #returns int conversion
@@ -162,7 +92,7 @@ def parse_post_frame(data):
     post_frame_data.frame_number = hex_to_int(data[0:4])
     post_frame_data.player_index = hex_to_int([data[4]])
     post_frame_data.is_follower = hex_to_int([data[5]])
-    post_frame_data.character_ID = hex_to_int([data[6]])
+    post_frame_data.internal_character_ID = hex_to_int([data[6]])
     post_frame_data.action_state = hex_to_int(data[7:9])
     post_frame_data.x_pos = hex_to_float(data[9:13])
     post_frame_data.y_pos = hex_to_float(data[13:17])
@@ -194,23 +124,23 @@ def parse_next(file, dict):
         print("ERROR: Unknown command or EOF reached")
         return 0
     #call proper parser for the data
-    if(command == GAME_START):
+    if(command == structures.GAME_START):
         parse_game_start(data)
-    elif(command == PRE_FRAME_UPDATE):
+    elif(command == structures.PRE_FRAME_UPDATE):
         parse_pre_frame(data)
-    elif(command == POST_FRAME_UPDATE):
+    elif(command == structures.POST_FRAME_UPDATE):
         parse_post_frame(data)
-    elif(command == GAME_END):
+    elif(command == structures.GAME_END):
         parse_game_end(data)
     return 1
 
 #data holders
 #variable values will be updated each time one of these
 #commands are encountered in the replay file
-game_start_data = game_start_event()
-pre_frame_data = pre_frame_event()
-post_frame_data = post_frame_event()
-game_end_data = game_end_event()
+game_start_data = structures.game_start_event()
+pre_frame_data = structures.pre_frame_event()
+post_frame_data = structures.post_frame_event()
+game_end_data = structures.game_end_event()
 
 #main method
 full_filename = "Game_20171221T170535.slp" #filename for replay
@@ -247,4 +177,8 @@ with open(full_filename, "rb") as replay:
     print(', '.join("%s: %s" % item for item in attrs.items()))
     attrs = vars(game_end_data)
     print(', '.join("%s: %s" % item for item in attrs.items()))
+    print(translator.external_character_id[game_start_data.character_ID_port1], "vs.",
+    translator.external_character_id[game_start_data.character_ID_port2], "on",
+    translator.stage_index[game_start_data.stage])
+    print(translator.internal_character_id[post_frame_data.internal_character_ID])
     replay.close()
