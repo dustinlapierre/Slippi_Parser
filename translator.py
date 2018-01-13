@@ -1,3 +1,4 @@
+#keys are int values (convert hex to int)
 internal_character_id = {
     0 : "Mario",
     1 : "Fox",
@@ -54,7 +55,8 @@ external_character_id = {
     22 : "Dr. Mario",
     23 : "Roy",
     24 : "Pichu",
-    25 : "Ganondorf"
+    25 : "Ganondorf",
+    26 : "None"
 }
 
 stage_index = {
