@@ -320,9 +320,5 @@ action_state_id = {
     287 : "Thrown Backward Koopa",
     322 : "Entry",
     323 : "Entry Start",
-    324 : "Entry End",
-    341 : "Wait 1",
-    342 : "Wait 2",
-    343 : "Wait 3",
-    344 : "Wait 4"
+    324 : "Entry End"
 }
