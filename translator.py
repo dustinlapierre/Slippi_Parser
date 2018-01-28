@@ -322,3 +322,32 @@ action_state_id = {
     323 : "Entry Start",
     324 : "Entry End"
 }
+
+#Fox's special action ID table
+fox_special_action_id = {
+    341 : "Grounded Laser Startup",
+    342 : "Grounded Laser",
+    343 : "Grounded Laser Endlag",
+    344 : "Aerial Laser Startup",
+    345 : "Aerial Laser",
+    346 : "Aerial Laser Endlag",
+    347 : "Grounded Illusion Startup",
+    348 : "Grounded Illusion",
+    349 : "Grounded Illusion Endlag",
+    350 : "Aerial Illusion Startup",
+    351 : "Aerial Illusion",
+    352 : "Aerial Illusion Endlag",
+    353 : "Fire Fox Startup",
+    354 : "Fire Fox",
+    355 : "Fire Fox",
+    356 : "Fire Fox",
+    357 : "Fire Fox",
+    358 : "Fire Fox",
+    359 : "Fire Fox Endlag",
+    360 : "Grounded Shine Startup",
+    361 : "Shine",
+    363 : "Grounded Shine Endlag",
+    365 : "Aerial Shine Startup",
+    366 : "Shine",
+    368 : "Aerial Shine Endlag"
+}

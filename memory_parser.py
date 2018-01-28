@@ -9,9 +9,7 @@ import translator
 import structures
 
 #Windows filesystem watcher code written by Tim Golden
-#Place in Slippi folder then run
-#will automatically detect file creation and parse live game
-#Written by Dustin Lapierre Copyright 01/13/2018
+#Parser written by Dustin Lapierre
 
 ACTIONS = {
   1 : "Created",
@@ -179,8 +177,12 @@ def print_frame():
     print("Character: ", translator.internal_character_id[post_frame_data.internal_character_ID])
     if(post_frame_data.action_state in translator.action_state_id):
         print("Action: ", translator.action_state_id[post_frame_data.action_state])
-    else:
-        print("Action: Unknown")
+    elif(post_frame_data.action_state > 324):
+        if(translator.internal_character_id[post_frame_data.internal_character_ID] == "Fox"):
+            if(post_frame_data.action_state in translator.fox_special_action_id):
+                print("Action: ", translator.fox_special_action_id[post_frame_data.action_state])
+        else:
+            print("Action: ", post_frame_data.action_state)
     print("X: ", post_frame_data.x_pos)
     print("Y: ", post_frame_data.y_pos)
     print("Direction: ", post_frame_data.facing_direction)
@@ -244,7 +246,7 @@ with open(full_filename, "rb") as replay:
         elif(command == structures.GAME_END):
             flag = 1
 
-        if(frames > 59):
+        if(frames > 29):
             players = 0
             frames = 0
             clear()
