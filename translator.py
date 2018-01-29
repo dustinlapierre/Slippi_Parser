@@ -351,3 +351,64 @@ fox_special_action_id = {
     366 : "Shine",
     368 : "Aerial Shine Endlag"
 }
+
+#Falco's special action ID table
+falco_special_action_id = {
+    341 : "Grounded Laser Startup",
+    342 : "Grounded Laser",
+    343 : "Grounded Laser Endlag",
+    344 : "Aerial Laser Startup",
+    345 : "Aerial Laser",
+    346 : "Aerial Laser Endlag",
+    347 : "Grounded Phantasm Startup",
+    348 : "Grounded Phantasm",
+    349 : "Grounded Phantasm Endlag",
+    350 : "Aerial Phantasm Startup",
+    351 : "Aerial Phantasm",
+    352 : "Aerial Phantasm Endlag",
+    353 : "Fire Bird Startup",
+    354 : "Fire Bird",
+    355 : "Fire Bird",
+    356 : "Fire Bird",
+    357 : "Fire Bird",
+    358 : "Fire Bird",
+    359 : "Fire Bird Endlag",
+    360 : "Grounded Shine Startup",
+    361 : "Shine",
+    363 : "Grounded Shine Endlag",
+    365 : "Aerial Shine Startup",
+    366 : "Shine",
+    368 : "Aerial Shine Endlag"
+}
+
+#Puff's special action ID table
+puff_special_action_id = {
+    341 : "Jump 2",
+    342 : "Jump 3",
+    343 : "Jump 4",
+    344 : "Jump 5",
+    345 : "Jump 6 (No Jumps Left)",
+    347 : "Grounded Rollout Charging 1",
+    348 : "Grounded Rollout Charging 2",
+    349 : "Grounded Rollout Charged",
+    350 : "Grounded Rollout",
+    351 : "Rollout Turn",
+    352 : "Rollout Turn",
+    353 : "Rollout Turn",
+    354 : "Rollout Turn",
+    355 : "Aerial Rollout Charging 1",
+    356 : "Aerial Rollout Charging 2",
+    357 : "Aerial Rollout Charged",
+    358 : "Aerial Rollout",
+    362 : "Rollout Bounce",
+    363 : "Grounded Pound",
+    364 : "Aerial Pound",
+    365 : "Grounded Sing Left",
+    366 : "Aerial Sing Left",
+    367 : "Grounded Sing Right",
+    368 : "Aerial Sing Right",
+    369 : "Rest (Ground)",
+    370 : "Rest (Air)",
+    371 : "Rest (Ground)",
+    372 : "Rest (Air)"
+}

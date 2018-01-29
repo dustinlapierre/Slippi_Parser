@@ -181,6 +181,12 @@ def print_frame():
         if(translator.internal_character_id[post_frame_data.internal_character_ID] == "Fox"):
             if(post_frame_data.action_state in translator.fox_special_action_id):
                 print("Action: ", translator.fox_special_action_id[post_frame_data.action_state])
+        if(translator.internal_character_id[post_frame_data.internal_character_ID] == "Falco"):
+            if(post_frame_data.action_state in translator.falco_special_action_id):
+                print("Action: ", translator.falco_special_action_id[post_frame_data.action_state])
+        if(translator.internal_character_id[post_frame_data.internal_character_ID] == "Jigglypuff"):
+            if(post_frame_data.action_state in translator.puff_special_action_id):
+                print("Action: ", translator.puff_special_action_id[post_frame_data.action_state])
         else:
             print("Action: ", post_frame_data.action_state)
     print("X: ", post_frame_data.x_pos)
