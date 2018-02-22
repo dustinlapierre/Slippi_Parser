@@ -171,31 +171,24 @@ def read_frame(replay, length):
             data.append(hex(ord(byte)))
     return data
 
-def print_frame():
-    print("Frame: ", post_frame_data.frame_number)
-    print("Player: ", post_frame_data.player_index)
-    print("Character: ", translator.internal_character_id[post_frame_data.internal_character_ID])
-    if(post_frame_data.action_state in translator.action_state_id):
-        print("Action: ", translator.action_state_id[post_frame_data.action_state])
-    elif(post_frame_data.action_state > 324):
-        if(translator.internal_character_id[post_frame_data.internal_character_ID] == "Fox"):
-            if(post_frame_data.action_state in translator.fox_special_action_id):
-                print("Action: ", translator.fox_special_action_id[post_frame_data.action_state])
-        if(translator.internal_character_id[post_frame_data.internal_character_ID] == "Falco"):
-            if(post_frame_data.action_state in translator.falco_special_action_id):
-                print("Action: ", translator.falco_special_action_id[post_frame_data.action_state])
-        if(translator.internal_character_id[post_frame_data.internal_character_ID] == "Jigglypuff"):
-            if(post_frame_data.action_state in translator.puff_special_action_id):
-                print("Action: ", translator.puff_special_action_id[post_frame_data.action_state])
-        else:
-            print("Action: ", post_frame_data.action_state)
-    print("X: ", post_frame_data.x_pos)
-    print("Y: ", post_frame_data.y_pos)
-    print("Direction: ", post_frame_data.facing_direction)
-    print("Percent: ", post_frame_data.percent)
-    print("Shield Size: ", post_frame_data.shield_size)
-    print("Combo: ", post_frame_data.current_combo_count)
-    print("Stocks: ", post_frame_data.stocks_remaining)
+def post_frame_as_list():
+    data = []
+    data.append(post_frame_data.player_index)
+    data.append(post_frame_data.action_state)
+    data.append(post_frame_data.x_pos)
+    data.append(post_frame_data.y_pos)
+    data.append(post_frame_data.facing_direction)
+    data.append(post_frame_data.percent)
+    data.append(post_frame_data.shield_size)
+    data.append(post_frame_data.stocks_remaining)
+    return data
+
+def LSTM_update(data_list):
+    clear()
+    #this list will be all the data sent to the LSTM
+    #index zero is frame number, then see above function for each player's breakdown
+    #replace below print with LSTM
+    print(data_list)
 
 #data holders
 #variable values will be updated each time one of these
@@ -203,6 +196,8 @@ def print_frame():
 game_start_data = structures.game_start_event()
 pre_frame_data = structures.pre_frame_event()
 post_frame_data = structures.post_frame_event()
+player1_data = []
+player2_data = []
 game_end_data = structures.game_end_event()
 
 #live parse the newly created file
@@ -226,7 +221,6 @@ with open(full_filename, "rb") as replay:
     command = ""
     flag = 0
     players = 0
-    frames = 0
     while(flag != 1):
         #read command byte
         while(1):
@@ -239,23 +233,22 @@ with open(full_filename, "rb") as replay:
                 command = hex(ord(byte))
                 break;
 
+        #parse command
         if(command == structures.PRE_FRAME_UPDATE):
             data = read_frame(replay, 58)
             parse_pre_frame(data)
         elif(command == structures.POST_FRAME_UPDATE):
             data = read_frame(replay, 33)
             parse_post_frame(data)
-            if(players < 2):
-                print_frame()
-                players += 1
-            frames += 1
+            #copy data into player container
+            if(post_frame_data.player_index == 0):
+                player1_data = post_frame_as_list()
+            else:
+                player2_data = post_frame_as_list()
+            #if both player's data stored send frame to LSTM
+            if(post_frame_data.player_index == 1):
+                LSTM_update([post_frame_data.frame_number] + player1_data + player2_data)
         elif(command == structures.GAME_END):
             flag = 1
 
-        if(frames > 29):
-            players = 0
-            frames = 0
-            clear()
-            print("Stage: ", translator.stage_index[game_start_data.stage])
-            print()
     replay.close()
