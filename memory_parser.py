@@ -7,6 +7,7 @@ import struct
 
 import translator
 import structures
+from analytics import player_analytics, update_analytics
 
 #Windows filesystem watcher code written by Tim Golden
 #Parser written by Dustin Lapierre
@@ -188,6 +189,11 @@ def LSTM_update(data_list):
     #this list will be all the data sent to the LSTM
     #index zero is frame number, then see above function for each player's breakdown
     #replace below print with LSTM
+    update_analytics(player1_analytics, player2_analytics, data_list)
+    print(player1_analytics.stage_control)
+    print(player1_analytics.above_opponent)
+    print(player2_analytics.stage_control)
+    print(player2_analytics.above_opponent)
     print(data_list)
 
 #data holders
@@ -196,9 +202,11 @@ def LSTM_update(data_list):
 game_start_data = structures.game_start_event()
 pre_frame_data = structures.pre_frame_event()
 post_frame_data = structures.post_frame_event()
+game_end_data = structures.game_end_event()
+player1_analytics = player_analytics()
+player2_analytics = player_analytics()
 player1_data = []
 player2_data = []
-game_end_data = structures.game_end_event()
 
 #live parse the newly created file
 with open(full_filename, "rb") as replay:
