@@ -2,7 +2,7 @@ class player_analytics:
     #shield health last frame (for detecting blocks)
     shield_health_last = -1.0
     #percentage last frame (for detecting hits)
-    percentage_last = -1.0
+    percentage_last = 0.0
     #number of frames in stage control
     stage_control = 0
     #number of frames above opponent
@@ -28,12 +28,11 @@ def update_analytics(player1, player2, data):
     #frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2
     check_stage_control(player1, player2, data)
     check_above(player1, player2, data)
-    #check_shielding
-    #check_neutral
-    #check block
-    #check attack
-
-    #recovery_analysis : more complex than other stats
+    check_shielding(player1, player2, data)
+    check_block(player1, player2, data)
+    #check attack - successful attacks easy, failed attacks not easy (too many possibilities)
+    #check_neutral - ambiguous and hard to program
+    #recovery_analysis : more complex than other stats but doable
 
     #update shield and percentage for next run
     player1.shield_health_last = data[7]
@@ -55,3 +54,23 @@ def check_above(player1, player2, data):
         player1.above_opponent += 1
     elif(data[12] > data[4]):
         player2.above_opponent += 1
+
+def check_shielding(player1, player2, data):
+    #if player is shielding
+    if(data[2] == 179):
+        player1.time_shielded += 1
+    if(data[10] == 179):
+        player2.time_shielded += 1
+
+def check_block(player1, player2, data):
+    #if you took abnormal shield damage you blocked an attack
+    #the plus 1.5 accounts for natural shield degeneration
+    if((data[7] + 1.5) < player1.shield_health_last):
+        player1.block_success += 1
+    elif((data[15] + 1.5) < player2.shield_health_last):
+        player2.block_success += 1
+    #if you gained percent you didn't
+    if(data[6] > player1.percentage_last):
+        player1.block_failed += 1
+    if(data[14] > player2.percentage_last):
+        player2.block_failed += 1

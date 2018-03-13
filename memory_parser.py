@@ -192,8 +192,9 @@ def LSTM_update(data_list):
     update_analytics(player1_analytics, player2_analytics, data_list)
     print(player1_analytics.stage_control)
     print(player1_analytics.above_opponent)
-    print(player2_analytics.stage_control)
-    print(player2_analytics.above_opponent)
+    print(player1_analytics.time_shielded)
+    print(player1_analytics.block_success)
+    print(player1_analytics.block_failed)
     print(data_list)
 
 #data holders
