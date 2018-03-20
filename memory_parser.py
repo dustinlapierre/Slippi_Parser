@@ -200,6 +200,11 @@ def LSTM_update(data_list):
     print("Frames shielding:", player1_analytics.time_shielded)
     print("Successful blocks:", player1_analytics.block_success)
     print("Times hit:", player1_analytics.block_failed)
+    print("Punishes:", player1_analytics.punish_amount)
+    print("Punish Time:", player1_analytics.punish_time)
+    if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
+        print("Neutral Win %:", (player1_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount)))
+        #neutral win % = (# punishes by this player/# of punishes total)
     print(data_list)
     #file.close()
 

@@ -35,7 +35,6 @@ class player_analytics:
     #flags
     punish_state = False
     damaged_state = False
-    control_state = False
     offstage_state = False
     recovery_state = False
 
@@ -46,9 +45,12 @@ def update_analytics(player1, player2, data):
     check_shielding(player1, player2, data)
     check_block(player1, player2, data)
 
+    update_flags(player1, player2, data)
+    check_neutral(player1, player2, data)
+    #check recovery
+
     #check_neutral - (# punishes by this player/# of punishes total)
-        #punish - starts when player takes damage, ends when player lands on stage, is in control, and isn't hit again for some time (~60 frames)
-        #control = action state 14-29
+        #punish - starts when player takes damage, ends when player is on stage and doesnt take damage for 120 frames (2 seconds)
 
     #recovery_analysis : more complex than other stats but doable
         #When player in damaged state off stage then offstage begins
@@ -104,3 +106,46 @@ def check_block(player1, player2, data):
         player1.block_failed += 1
     if(data[15] > player2.percentage_last):
         player2.block_failed += 1
+
+def update_flags(player1, player2, data):
+    #punish check - took damage and wasn't in a punish
+    if(data[7] > player1.percentage_last):
+        if(player1.punish_state == False):
+            player2.punish_amount += 1
+        player1.punish_state = True
+        player1.punish_time = 0
+    if(data[15] > player2.percentage_last):
+        if(player2.punish_state == False):
+            player1.punish_amount += 1
+        player2.punish_state = True
+        player2.punish_time = 0
+
+    #damaged check
+    if(data[3] in range(75, 91)):
+        player1.damaged_state = True
+    else:
+        player1.damaged_state = False
+
+    if(data[11] in range(75, 91)):
+        player2.damaged_state = True
+    else:
+        player2.damaged_state = False
+
+    #offstage check
+    #offstage = x > edge_x+characterlen or y < -10 (under stage)
+
+
+def check_neutral(player1, player2, data):
+    #punish time increment
+    if(player1.damaged_state == False and player1.offstage_state == False and player1.punish_state == True):
+        player1.punish_time += 1
+    if(player2.damaged_state == False and player2.offstage_state == False and player2.punish_state == True):
+        player2.punish_time += 1
+
+    #punish ended check
+    if(player1.punish_time >= 120):
+        player1.punish_state = False
+        player1.punish_time = 0
+    if(player2.punish_time >= 120):
+        player2.punish_state = False
+        player2.punish_time = 0
