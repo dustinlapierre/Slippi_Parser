@@ -187,15 +187,21 @@ def post_frame_as_list():
 def LSTM_update(data_list):
     clear()
     #this list will be all the data sent to the LSTM
-    #index zero is frame number, then see above function for each player's breakdown
+    #index zero is stage, two is frame number, then see above function for each player's breakdown
     #replace below print with LSTM
+    #file = open("meleedata.txt","a")
+    #file.write(str(data_list))
+    #file.write("\n")
     update_analytics(player1_analytics, player2_analytics, data_list)
-    print(player1_analytics.stage_control)
-    print(player1_analytics.above_opponent)
-    print(player1_analytics.time_shielded)
-    print(player1_analytics.block_success)
-    print(player1_analytics.block_failed)
+    print("Stage:", translator.stage_index[data_list[0]])
+    print("Current Frame Number:", data_list[1])
+    print("Frames in stage control:", player1_analytics.stage_control)
+    print("Frames above opponent:", player1_analytics.above_opponent)
+    print("Frames shielding:", player1_analytics.time_shielded)
+    print("Successful blocks:", player1_analytics.block_success)
+    print("Times hit:", player1_analytics.block_failed)
     print(data_list)
+    #file.close()
 
 #data holders
 #variable values will be updated each time one of these
@@ -256,7 +262,7 @@ with open(full_filename, "rb") as replay:
                 player2_data = post_frame_as_list()
             #if both player's data stored send frame to LSTM
             if(post_frame_data.player_index == 1):
-                LSTM_update([post_frame_data.frame_number] + player1_data + player2_data)
+                LSTM_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data + player2_data)
         elif(command == structures.GAME_END):
             flag = 1
 
