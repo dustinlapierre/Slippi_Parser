@@ -4,10 +4,11 @@ import win32con
 import time
 from ast import literal_eval
 import struct
+from random import *
 
 import translator
 import structures
-from analytics import player_analytics, update_analytics
+from analytics import player_analytics, update_analytics, get_support_commentary
 
 #Windows filesystem watcher code written by Tim Golden
 #Parser written by Dustin Lapierre
@@ -185,28 +186,42 @@ def post_frame_as_list():
     return data
 
 def LSTM_update(data_list):
-    clear()
-    #this list will be all the data sent to the LSTM
-    #index zero is stage, two is frame number, then see above function for each player's breakdown
-    #replace below print with LSTM
+    #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
     #file = open("meleedata.txt","a")
     #file.write(str(data_list))
     #file.write("\n")
     update_analytics(player1_analytics, player2_analytics, data_list)
-    print("Stage:", translator.stage_index[data_list[0]])
-    print("Current Frame Number:", data_list[1])
+    #Print support commentary every 2 seconds
+    if(data_list[1] % 240 == 0 and data_list[1] < 50000):
+        file = open("GUI/input.txt","a")
+        #print(get_support_commentary(player1_analytics, player2_analytics, data_list, randint(0, 2)))
+        file.write(get_support_commentary(player1_analytics, player2_analytics, data_list, randint(0, 2)))
+        file.write("\n")
+        file.close()
+    #print(data_list)
+    #file.close()
+
+def print_final_stats():
+    print("Player 1 Stats ----------")
     print("Frames in stage control:", player1_analytics.stage_control)
     print("Frames above opponent:", player1_analytics.above_opponent)
     print("Frames shielding:", player1_analytics.time_shielded)
     print("Successful blocks:", player1_analytics.block_success)
     print("Times hit:", player1_analytics.block_failed)
     print("Punishes:", player1_analytics.punish_amount)
-    print("Punish Time:", player1_analytics.punish_time)
     if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
         print("Neutral Win %:", (player1_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount)))
-        #neutral win % = (# punishes by this player/# of punishes total)
-    print(data_list)
-    #file.close()
+            #neutral win % = (# punishes by this player/# of punishes total)
+    print("Player 2 Stats ----------")
+    print("Frames in stage control:", player2_analytics.stage_control)
+    print("Frames above opponent:", player2_analytics.above_opponent)
+    print("Frames shielding:", player2_analytics.time_shielded)
+    print("Successful blocks:", player2_analytics.block_success)
+    print("Times hit:", player2_analytics.block_failed)
+    print("Punishes:", player2_analytics.punish_amount)
+    if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
+        print("Neutral Win %:", (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount)))
+            #neutral win % = (# punishes by this player/# of punishes total)
 
 #data holders
 #variable values will be updated each time one of these
@@ -265,10 +280,11 @@ with open(full_filename, "rb") as replay:
                 player1_data = post_frame_as_list()
             else:
                 player2_data = post_frame_as_list()
-            #if both player's data stored send frame to LSTM
+            #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
                 LSTM_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data + player2_data)
         elif(command == structures.GAME_END):
+            print_final_stats()
             flag = 1
 
     replay.close()

@@ -72,6 +72,74 @@ def update_analytics(player1, player2, data):
     player2.percentage_last = data[15]
     #TODO update punish
 
+def get_support_commentary(player1, player2, data, choice):
+    if(choice == 0):
+        #stage control comment
+        if(data[1] != 0):
+            p1_stage = player1.stage_control/data[1]
+            p2_stage = player2.stage_control/data[1]
+        else:
+            p1_stage = 0
+            p2_stage = 0
+
+        if(p1_stage > p2_stage):
+            return "Player 1 has had stage control for a majority of the game"
+        elif(p2_stage > p1_stage):
+            return "Player 2 has had stage control for a majority of the game"
+        else:
+            return "Stage control has been hotly contested this match"
+
+    elif(choice == 1):
+        #talk about leading player and their block success
+        if((player1.block_success + player1.block_failed) != 0):
+            p1_block = player1.block_success/(player1.block_success + player1.block_failed)
+        else:
+            p1_block = 0
+        if((player2.block_success + player2.block_failed) != 0):
+            p2_block = player2.block_success/(player2.block_success + player2.block_failed)
+        else:
+            p2_block = 0
+
+        if(p1_block < p2_block):
+            return "Player 2 is finding a lot of holes in Player 1's defense.\nPlayer 1's block rate is " + str(p1_block * 100) + "%"
+        elif(p1_block > p2_block):
+            return "Player 1 is finding a lot of holes in Player 2's defense.\nPlayer 2's block rate is " + str(p2_block * 100) + "%"
+        else:
+            if(data[9] < data[17]):
+                return "Player 2's strong offense is helping them hold the lead"
+            elif(data[17] < data[9]):
+                return "Player 1's strong offense is helping them hold the lead"
+            else:
+                return "I'm seeing really strong defense from both players"
+
+
+    elif(choice == 2):
+        #neutral comment
+        if((player1.punish_amount + player2.punish_amount) != 0):
+            player1_nooch = (player1.punish_amount/(player1.punish_amount + player2.punish_amount))
+            player2_nooch = (player2.punish_amount/(player1.punish_amount + player2.punish_amount))
+
+            if(player1_nooch > 0.60):
+                output = "Player 1 is really dominating in neutral"
+                if(data[9] < data[17]):
+                    output += ", but Player 2 seems to be getting more off their neutral wins"
+                return output
+            elif(player2_nooch > 0.60):
+                output = "Player 2 is really dominating in neutral"
+                if(data[17] < data[9]):
+                    output += ", but Player 1 seems to be getting more off their neutral wins"
+                return output
+            else:
+                output = "Both players are going about even in neutral so far"
+                if(data[9] < data[17]):
+                    output += ", but Player 2 is getting more off their neutral wins"
+                elif(data[17] < data[9]):
+                    output += ", but Player 1 is getting more off their neutral wins"
+                return output
+        else:
+            return "Neither player has been able to score a single neutral win"
+
+    #TODO add recovery comment
 
 def check_stage_control(player1, player2, data):
     #stage control - when you are inside middle 100 pixels and opponent outside it
