@@ -6,6 +6,8 @@ from ast import literal_eval
 import struct
 from random import *
 
+import LSTM
+
 import translator
 import structures
 from analytics import player_analytics, update_analytics, get_support_commentary
@@ -188,7 +190,17 @@ def post_frame_as_list():
 def LSTM_update(data_list):
     #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
     update_analytics(player1_analytics, player2_analytics, data_list)
-    #model = load_model('dash_dance_classifier.h5')
+    #single timestep
+    """
+    pred = LSTM.make_prediction(data_list[2:10])
+    print("Predicted classes:\n{}".format(pred > 0.5))
+    """
+    #30 timesteps
+    if(len(LSTM_batch) < 30):
+        LSTM_batch.append(data_list[2:10])
+    else:
+        pred = LSTM.make_prediction_batch(LSTM_batch)
+        del LSTM_batch[:]
     #Print support commentary every 2 seconds
     """
     if(data_list[1] % 240 == 0 and data_list[1] < 50000):
@@ -233,6 +245,7 @@ player1_analytics = player_analytics()
 player2_analytics = player_analytics()
 player1_data = []
 player2_data = []
+LSTM_batch = []
 
 #live parse the newly created file
 with open(full_filename, "rb") as replay:
