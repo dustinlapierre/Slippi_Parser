@@ -1,45 +1,42 @@
+from keras.preprocessing import sequence
+from keras.models import Sequential
+from keras.layers import Dense, Embedding
+from keras.layers import LSTM
+from keras.datasets import imdb
+import numpy as np
+
+#sequences must all be 100 frames long
 x = [
-[[20, -31, 9, -1],
-[20, -33, 9, -1],
-[20, -35, 9, -1],
-[20, -37, 9, -1],
-[20, -39, 9, -1],
-[20, -41, 9, -1],
-[20, -42, 9, -1],
-[18, -43, 9, -1],
-[20, -43, 9, 1],
-[20, -41, 9, 1]
-[20, -39, 9, 1],
-[20, -37, 9, 1],
-[20, -35, 9, 1],
-[20, -33, 9, 1],
-[20, -32, 9, 1]]
+    [[0, 0, 50.5],[1, 8, 50.5],[1, 3, 50.5],[0, 3, 50.5],[0, 8, 50.5],[0, 2, 50.5]],
+    [[0, 3, 50.5],[0, 2, 50.5],[1, 4, 50.5],[2, 9, 50.5],[2, 11, 50.5],[0, 2, 50.5]],
+    [[0, 13, 50.5],[0, 2, 50.5],[0, 2, 50.5],[0, 11, 50.5],[3, 8, 50.5],[3, 2, 50.5]],
+    [[0, 7, 50.5],[2, 13, 50.5],[2, 4, 50.5],[0, 0, 50.5],[0, 0, 50.5],[0, 1, 50.5]]
 ]
+x = np.array(x,dtype=np.float32)
 
-x = [
-    [[0, 0],[1, 8],[1, 3],[0, 3],[0, 8],[0, 2]],
-    [[0, 3],[0, 2],[1, 4],[2, 9],[2, 11],[0, 2]],
-    [[0, 13],[0, 2],[0, 2],[0, 11],[3, 8],[3, 2]],
-    [[0, 7],[2, 13],[2, 4],[0, 0],[0, 0],[0, 1]]
-]
-
-#old stuff from previous attempts
-
-#y = np.array([1,2,3,2,3,1],dtype=np.int32)
-#print(x.shape)
-
-# Convert y2 to dummy variables
-'''
-y2 = np.zeros((y.shape[0], max_features),dtype=np.float32)
-y2[np.arange(y.shape[0]), y] = 1.0
-print(y2)
-'''
-
-"""
 y_new = [
-    [[1, 0, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0]],
-    [[1, 0, 0, 0],[1, 0, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0],[0, 0, 1, 0],[0, 0, 1, 0]],
-    [[1, 0, 0, 0],[1, 0, 0, 0],[1, 0, 0, 0],[1, 0, 0, 0],[0, 0, 0, 1],[0, 0, 0, 1]],
-    [[1, 0, 0, 0],[0, 0, 1, 0],[0, 0, 1, 0],[0, 0, 1, 0],[0, 0, 1, 0],[0, 0, 1, 0]]
+    [[1],[1],[1],[1],[1],[1]],
+    [[0],[0],[0],[0],[0],[0]],
+    [[0],[0],[0],[0],[0],[0]],
+    [[1],[1],[1],[1],[1],[1]]
 ]
-"""
+y_new = np.array(y_new, dtype=np.int32)
+
+
+print('Build model...')
+model = Sequential()
+#input shape cooresponds to x (input)
+model.add(LSTM(128, dropout=0.1, recurrent_dropout=0.2, input_shape=(None, 3), return_sequences=True))
+#first number cooresponds to y (labels)
+model.add(Dense(1, activation='sigmoid'))
+
+# try using different optimizers and different optimizer configs
+model.compile(loss='binary_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+
+print('Train...')
+model.fit(x,y_new,epochs=800)
+pred = model.predict(x)
+print("Predicted classes:\n{}".format(pred > 0.5))
+print("True classes:\n{}".format(y_new > 0.5))

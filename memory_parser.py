@@ -187,19 +187,18 @@ def post_frame_as_list():
 
 def LSTM_update(data_list):
     #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
-    #file = open("meleedata.txt","a")
-    #file.write(str(data_list))
-    #file.write("\n")
     update_analytics(player1_analytics, player2_analytics, data_list)
+    #model = load_model('dash_dance_classifier.h5')
     #Print support commentary every 2 seconds
+    """
     if(data_list[1] % 240 == 0 and data_list[1] < 50000):
         file = open("GUI/input.txt","a")
         #print(get_support_commentary(player1_analytics, player2_analytics, data_list, randint(0, 2)))
         file.write(get_support_commentary(player1_analytics, player2_analytics, data_list, randint(0, 2)))
         file.write("\n")
         file.close()
+    """
     #print(data_list)
-    #file.close()
 
 def print_final_stats():
     print("Player 1 Stats ----------")
@@ -282,6 +281,11 @@ with open(full_filename, "rb") as replay:
                 player2_data = post_frame_as_list()
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
+                file = open("meleedata.txt", "a")
+                file.write(str(player1_data))
+                file.write(",")
+                file.write("\n")
+                file.close()
                 LSTM_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data + player2_data)
         elif(command == structures.GAME_END):
             print_final_stats()
