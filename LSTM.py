@@ -9,12 +9,14 @@ model = load_model("dash_dance_classifier.h5")
 
 #single timestep version
 def make_prediction(data):
+    batch_size = len(data)
     data = np.array(data, dtype=np.float32)
-    data = data.reshape((1,1,8))
+    data = data.reshape((1, batch_size, 8))
     pred = model.predict(data)
     print("Predicted classes:\n{}".format(pred > 0.5))
     return pred
 
+"""
 #30 timesteps
 def make_prediction_batch(data):
     data = np.array(data, dtype=np.float32)
@@ -22,7 +24,7 @@ def make_prediction_batch(data):
     pred = model.predict(data)
     print("Predicted classes:\n{}".format(pred > 0.5))
     return True
-"""
+
 x = [
     [[0, 20, -57.84187316894531, 9.999999747378752, 1.0, 0.0, 60.0, 4],
     [0, 20, -55.57062530517578, 9.999999747378752, 1.0, 0.0, 60.0, 4],
