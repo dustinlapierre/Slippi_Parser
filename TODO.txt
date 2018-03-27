@@ -1,0 +1,9 @@
+*compile trainset
+get training example (validation set) - for testing
+shield pressure (low shield and opponent close)
+*recovery check
+
+translator check for top tiers
+
+hex to int and int to hex conversion moved to another file along with all the parse functions
+move LSTM update to the LSTM file
