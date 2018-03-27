@@ -195,9 +195,11 @@ def LSTM_update(data_list):
     pred = LSTM.make_prediction(data_list[2:10])
     print("Predicted classes:\n{}".format(pred > 0.5))
     """
-    #30 timesteps
+    #normalize the data here
+    normalized_data = LSTM.normalize(data_list[3:7])
+
     if(len(LSTM_batch) < 100):
-        LSTM_batch.append(data_list[2:10])
+        LSTM_batch.append(normalized_data)
     else:
         pred = LSTM.make_prediction(LSTM_batch)
         del LSTM_batch[:]

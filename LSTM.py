@@ -16,6 +16,14 @@ def make_prediction(data):
     print("Predicted classes:\n{}".format(pred > 0.5))
     return pred
 
+#normalize data into range -1 to 1
+def normalize(data):
+    #action range 0 to 400
+    #x range -100 to 100
+    #y range -100 to 100
+    #direction is alreqady normalized
+    return data
+
 """
 x = [[0, 20, -57.84187316894531, 9.999999747378752, 1.0, 0.0, 60.0, 4],
     [0, 20, -55.57062530517578, 9.999999747378752, 1.0, 0.0, 60.0, 4],
