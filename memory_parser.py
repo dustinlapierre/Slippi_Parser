@@ -196,7 +196,7 @@ def LSTM_update(data_list):
     print("Predicted classes:\n{}".format(pred > 0.5))
     """
     #30 timesteps
-    if(len(LSTM_batch) < 30):
+    if(len(LSTM_batch) < 100):
         LSTM_batch.append(data_list[2:10])
     else:
         pred = LSTM.make_prediction(LSTM_batch)
@@ -295,7 +295,7 @@ with open(full_filename, "rb") as replay:
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
                 file = open("meleedata.txt", "a")
-                file.write(str(player1_data))
+                file.write(str(player1_data[1:5]))
                 file.write(",")
                 file.write("\n")
                 file.close()

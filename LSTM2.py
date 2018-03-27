@@ -6,7 +6,6 @@ from keras.datasets import imdb
 import numpy as np
 
 from compile_trainset import *
-#from trainset import x, y_new
 
 #sequences must all be 100 frames long
 x = compile_data()
@@ -19,6 +18,7 @@ y = np.array(y, dtype=np.int32)
 print('Build model...')
 model = Sequential()
 #input shape cooresponds to x (input)
+#model.add(LSTM(128, dropout=0.25, recurrent_dropout=0.2, input_shape=(None, 8), return_sequences=True,stateful=True))
 model.add(LSTM(128, dropout=0.25, recurrent_dropout=0.2, input_shape=(None, 8), return_sequences=True))
 #first number cooresponds to y (labels)
 model.add(Dense(1, activation='sigmoid'))
