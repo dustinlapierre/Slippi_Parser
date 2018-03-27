@@ -199,7 +199,7 @@ def LSTM_update(data_list):
     if(len(LSTM_batch) < 30):
         LSTM_batch.append(data_list[2:10])
     else:
-        pred = LSTM.make_prediction_batch(LSTM_batch)
+        pred = LSTM.make_prediction(LSTM_batch)
         del LSTM_batch[:]
     #Print support commentary every 2 seconds
     """

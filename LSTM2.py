@@ -5,11 +5,15 @@ from keras.layers import LSTM
 from keras.datasets import imdb
 import numpy as np
 
-from trainset import x, y_new
+from compile_trainset import *
+#from trainset import x, y_new
 
 #sequences must all be 100 frames long
+x = compile_data()
 x = np.array(x,dtype=np.float32)
-y_new = np.array(y_new, dtype=np.int32)
+
+y = compile_labels()
+y = np.array(y, dtype=np.int32)
 
 
 print('Build model...')
@@ -25,7 +29,7 @@ model.compile(loss='binary_crossentropy',
               metrics=['accuracy'])
 
 print('Train...')
-model.fit(x,y_new,epochs=500)
+model.fit(x,y,epochs=500)
 pred = model.predict(x)
 print("Predicted classes:\n{}".format(pred > 0.5))
 model.save('dash_dance_classifier.h5')
