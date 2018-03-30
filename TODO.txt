@@ -1,8 +1,11 @@
 structures for player data to clean up code and remove magic numbers
 shield pressure (add attack state check)
-*recovery check
 
-translator check for top tiers
+testing class ----
+    *recovery check
+    *new support commentary
+
+translator move check for top tiers
 
 hex to int and int to hex conversion moved to another file along with all the parse functions
 move LSTM update to the LSTM file
