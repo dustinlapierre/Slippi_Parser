@@ -1,4 +1,5 @@
 from translator import stage_index
+from math import *
 #left ledge positions
 #right ledge is (-x, y)
 ledge_position = {
@@ -66,7 +67,6 @@ def update_analytics(player1, player2, data):
     player1.percentage_last = data[7]
     player2.shield_health_last = data[16]
     player2.percentage_last = data[15]
-    #TODO update punish
 
 def get_support_commentary(player1, player2, data, choice):
     if(choice == 0):
@@ -135,7 +135,10 @@ def get_support_commentary(player1, player2, data, choice):
         else:
             return "Neither player has been able to score a single neutral win"
 
+    #TODO check each one for weight, if the stats are interesting put those strings in a list
+    #then randomly choose from the list
     #TODO add recovery comment
+    #TODO add shield pressure comment
 
 def check_stage_control(player1, player2, data):
     #stage control - when you are inside middle 100 pixels and opponent outside it
@@ -216,6 +219,21 @@ def check_recovery(player1, player2, data):
     if(player2.offstage_state == True and player2.damaged_state == False):
         player2.recovery_state = True
 
+def check_shield_pressure(data):
+    #returns boolean tuple, (player1, player2)
+    #True means player is currently pressuring shield
+
+    #players are close
+    distance = sqrt(pow((data[12] - data[4]), 2) + pow((data[13] - data[5]), 2))
+    if(distance < 15):
+        #player 1 under pressure
+        if(data[8] <= 25.0 and data[3] == 179):
+            return (False, True)
+        #player 2 under pressure
+        elif(data[16] <= 25.0 and data[11] == 179):
+            return (True, False)
+
+    return (False, False)
 
 def check_neutral(player1, player2, data):
     #check_neutral - (# punishes by this player/# of punishes total)

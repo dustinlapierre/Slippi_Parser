@@ -1,5 +1,6 @@
 import unittest
 from compile_trainset import *
+from analytics import check_shield_pressure
 import numpy as np
 import os
 
@@ -19,8 +20,26 @@ class TestCompileTrainset(unittest.TestCase):
 
 class TestShieldPressure(unittest.TestCase):
     def test_pressure(self):
-        #test if mock recovery data fits
-        self.assertEqual(data.shape, (set_size, 100, 4))
+        #test if mock gameplay data satisfies shield pressure criteria
+        #data: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
+        mock_data = [
+                    32, 999,
+                    0, 14, 12.0, 0.0, 1.0, 0.0, 60.0, 4,
+                    1, 179, 18.0, 0.0, -1.0, 0.0, 24.5, 4
+                    ]
+        self.assertEqual(check_shield_pressure(mock_data), (True, False))
+        mock_data = [
+                    32, 999,
+                    0, 179, -40.0, 0.0, -1.0, 0.0, 15.0, 4,
+                    1, 14, -35.0, 0.0, -1.0, 0.0, 60.0, 4
+                    ]
+        self.assertEqual(check_shield_pressure(mock_data), (False, True))
+        mock_data = [
+                    32, 999,
+                    0, 14, 0.0, 0.0, 1.0, 0.0, 45.0, 4,
+                    1, 14, -12.0, 0.0, 1.0, 0.0, 53.5, 4
+                    ]
+        self.assertEqual(check_shield_pressure(mock_data), (False, False))
 
 if __name__ == '__main__':
     unittest.main()
