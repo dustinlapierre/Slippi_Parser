@@ -8,14 +8,14 @@ class TestCompileTrainset(unittest.TestCase):
         #test if data captured properly (on edge cases)
         set_size = len(os.listdir('training_set/data'))
         data = compile_data()
-        self.assertEqual(data[0][0], [0, 20, -58.18000030517578, 9.999999747378752, 1.0, 0.0, 60.0, 4])
-        self.assertEqual(data[0][99], [0, 20, -49.3912467956543, 9.999999747378752, -1.0, 0.0, 60.0, 4])
-        self.assertEqual(data[set_size-1][0], [0, 14, -60.0, 9.999999747378752, 1.0, 0.0, 60.0, 4])
-        self.assertEqual(data[set_size-1][99], [0, 14, -60.0, 9.999999747378752, 1.0, 0.0, 60.0, 4])
+        self.assertEqual(data[0][0], [-0.9, -0.20679999999999998, 0.0, 1.0])
+        self.assertEqual(data[0][99], [-0.9, -0.08055999999999996, 0.0, 1.0])
+        self.assertEqual(data[set_size-1][0], [-0.9, -0.08628000000000002, 0.0, 1.0])
+        self.assertEqual(data[set_size-1][99], [-0.9, 0.016119999999999912, 0.0, -1.0])
 
         #test if shape is correct
         data = np.array(data, dtype=np.float32)
-        self.assertEqual(data.shape, (set_size, 100, 8))
+        self.assertEqual(data.shape, (set_size, 100, 4))
 
 if __name__ == '__main__':
     unittest.main()

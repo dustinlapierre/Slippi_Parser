@@ -11,7 +11,7 @@ model = load_model("dash_dance_classifier.h5")
 def make_prediction(data):
     batch_size = len(data)
     data = np.array(data, dtype=np.float32)
-    data = data.reshape((1, batch_size, 8))
+    data = data.reshape((1, batch_size, 4))
     pred = model.predict(data)
     print("Predicted classes:\n{}".format(pred > 0.5))
     return pred
@@ -19,10 +19,13 @@ def make_prediction(data):
 #normalize data into range -1 to 1
 def normalize(data):
     #action range 0 to 400
-    #x range -100 to 100
-    #y range -100 to 100
+    action = 2 * (data[0]/400) - 1
+    #x range -250 to 250
+    x = 2 * ((data[1] + 250)/500) - 1
+    #y range -150 to 150
+    y = 2 * ((data[2] + 150)/300) - 1
     #direction is alreqady normalized
-    return data
+    return [action, x, y, data[3]]
 
 """
 x = [[0, 20, -57.84187316894531, 9.999999747378752, 1.0, 0.0, 60.0, 4],

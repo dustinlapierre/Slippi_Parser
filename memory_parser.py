@@ -153,8 +153,14 @@ def parse_post_frame(data):
     post_frame_data.is_follower = hex_to_int([data[5]])
     post_frame_data.internal_character_ID = hex_to_int([data[6]])
     post_frame_data.action_state = hex_to_int(data[7:9])
-    post_frame_data.x_pos = hex_to_float(data[9:13])
-    post_frame_data.y_pos = hex_to_float(data[13:17])
+    x = hex_to_float(data[9:13])
+    if(x <= 0.1 and x >= -0.1):
+        x = 0
+    post_frame_data.x_pos = round(x, 2)
+    y = hex_to_float(data[13:17])
+    if(y <= 0.1 and y >= -0.1):
+        y = 0
+    post_frame_data.y_pos = round(y, 2)
     post_frame_data.facing_direction = hex_to_float(data[17:21])
     post_frame_data.percent = hex_to_float(data[21:25])
     post_frame_data.shield_size = hex_to_float(data[25:29])
@@ -297,7 +303,7 @@ with open(full_filename, "rb") as replay:
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
                 file = open("meleedata.txt", "a")
-                file.write(str(player1_data[1:5]))
+                file.write(str(LSTM.normalize(player1_data[1:5])))
                 file.write(",")
                 file.write("\n")
                 file.close()
