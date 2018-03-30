@@ -1,4 +1,5 @@
-shield pressure (low shield and shield state and opponent close while in attack state)
+structures for player data to clean up code and remove magic numbers
+shield pressure (add attack state check)
 *recovery check
 
 translator check for top tiers
