@@ -17,5 +17,10 @@ class TestCompileTrainset(unittest.TestCase):
         data = np.array(data, dtype=np.float32)
         self.assertEqual(data.shape, (set_size, 100, 4))
 
+class TestShieldPressure(unittest.TestCase):
+    def test_pressure(self):
+        #test if mock recovery data fits
+        self.assertEqual(data.shape, (set_size, 100, 4))
+
 if __name__ == '__main__':
     unittest.main()

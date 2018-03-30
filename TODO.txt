@@ -1,6 +1,4 @@
-*compile trainset
-get training example (validation set) - for testing
-shield pressure (low shield and opponent close)
+shield pressure (low shield and shield state and opponent close while in attack state)
 *recovery check
 
 translator check for top tiers
@@ -8,5 +6,5 @@ translator check for top tiers
 hex to int and int to hex conversion moved to another file along with all the parse functions
 move LSTM update to the LSTM file
 
-new data set from scratch using only the 4 numbers, normalize it, then try again
+*new data set from scratch using only the 4 numbers, normalize it, then try again
 (if prediction is still bad try stateful)

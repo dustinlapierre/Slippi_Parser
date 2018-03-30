@@ -1,3 +1,4 @@
+from translator import stage_index
 #left ledge positions
 #right ledge is (-x, y)
 ledge_position = {
@@ -47,10 +48,7 @@ def update_analytics(player1, player2, data):
 
     update_flags(player1, player2, data)
     check_neutral(player1, player2, data)
-    #check recovery
-
-    #check_neutral - (# punishes by this player/# of punishes total)
-        #punish - starts when player takes damage, ends when player is on stage and doesnt take damage for 120 frames (2 seconds)
+    check_recovery(player1, player2, data)
 
     #recovery_analysis : more complex than other stats but doable
         #When player in damaged state off stage then offstage begins
@@ -61,8 +59,6 @@ def update_analytics(player1, player2, data):
             #if offstage and recovery = True
                 #recovery failed, edge guard success, reset flags
         #If player reaches stage, reset flags
-        #offstage = x > edge_x+characterlen or y < -10 (under stage)
-        #damaged state = action state 75-91
 
 
     #update shield and percentage for next run
@@ -200,10 +196,31 @@ def update_flags(player1, player2, data):
         player2.damaged_state = False
 
     #offstage check
+    edge = ledge_position[stage_index[data[0]]]
     #offstage = x > edge_x+characterlen or y < -10 (under stage)
+    if((abs(data[4]) > abs(edge[0])) or (data[5] < (edge[1] - 10))):
+        player1.offstage_state = True
+    else:
+        player1.offstage_state = False
+
+    if((abs(data[12]) > abs(edge[0])) or (data[13] < (edge[1] - 10))):
+        player2.offstage_state = True
+    else:
+        player2.offstage_state = False
+
+
+def check_recovery(player1, player2, data):
+    #recovery check
+    if(player1.offstage_state == True and player1.damaged_state == False):
+        player1.recovery_state = True
+    if(player2.offstage_state == True and player2.damaged_state == False):
+        player2.recovery_state = True
 
 
 def check_neutral(player1, player2, data):
+    #check_neutral - (# punishes by this player/# of punishes total)
+        #punish - starts when player takes damage, ends when player is on stage and doesnt take damage for 120 frames (2 seconds)
+
     #punish time increment
     if(player1.damaged_state == False and player1.offstage_state == False and player1.punish_state == True):
         player1.punish_time += 1
