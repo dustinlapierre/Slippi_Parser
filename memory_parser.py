@@ -218,7 +218,6 @@ def LSTM_update(data_list):
         file.write("\n")
         file.close()
     """
-    #print(data_list)
 
 def print_final_stats():
     print("Player 1 Stats ----------")
