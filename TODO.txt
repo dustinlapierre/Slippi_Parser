@@ -10,5 +10,4 @@ translator move check for top tiers
 hex to int and int to hex conversion moved to another file along with all the parse functions
 move LSTM update to the LSTM file
 
-*new data set from scratch using only the 4 numbers, normalize it, then try again
 (if prediction is still bad try stateful)

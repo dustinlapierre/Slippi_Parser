@@ -11,8 +11,8 @@ class TestCompileTrainset(unittest.TestCase):
         data = compile_data()
         self.assertEqual(data[0][0], [-0.9, -0.20679999999999998, 0.0, 1.0])
         self.assertEqual(data[0][99], [-0.9, -0.08055999999999996, 0.0, 1.0])
-        self.assertEqual(data[set_size-1][0], [-0.9, -0.08628000000000002, 0.0, 1.0])
-        self.assertEqual(data[set_size-1][99], [-0.9, 0.016119999999999912, 0.0, -1.0])
+        self.assertEqual(data[set_size-1][0], [-0.9, -0.24, 0.0, 1.0])
+        self.assertEqual(data[set_size-1][99], [-0.9, 0.0722799999999999, 0.0, -1.0])
 
         #test if shape is correct
         data = np.array(data, dtype=np.float32)
