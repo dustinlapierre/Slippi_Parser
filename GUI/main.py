@@ -25,14 +25,14 @@ class MainScreen(FloatLayout):
         super(MainScreen, self).__init__(**kwargs)
         self.label = self.ids.lbl_console_window
 
-        f = open("input.txt", "r+")
+        f = open("GUI/input.txt", "r+")
         f.truncate(0)
         f.close()
 
     def update(self, *args):
         self.contentList = []
         newLastLine = ""
-        with open("input.txt", "r+") as f:
+        with open("GUI/input.txt", "r+") as f:
             for line in f:
                 self.contentList.append(line)
 
@@ -58,5 +58,8 @@ class MainApp(App):
         Clock.schedule_interval(main.update, 0.25)
         return main
 
-if __name__ == '__main__':
+def GuiThreadStart(character1, character2, stage):
+    print(character1)
+    print(character2)
+    print(stage)
     MainApp().run()

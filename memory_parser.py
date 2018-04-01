@@ -1,6 +1,7 @@
 import os
 import win32file
 import win32con
+import _thread
 import time
 from ast import literal_eval
 import struct
@@ -9,6 +10,10 @@ import LSTM
 import translator
 import structures
 from analytics import player_analytics, update_analytics, get_support_commentary, check_shield_pressure
+
+import sys
+sys.path.insert(0, 'GUI/')
+from main import GuiThreadStart
 
 #Windows filesystem watcher code written by Tim Golden
 #Parser written by Dustin Lapierre
@@ -288,6 +293,14 @@ with open(full_filename, "rb") as replay:
             data.append(hex(ord(byte)))
 
     parse_game_start(data)
+    
+    try:
+        _thread.start_new_thread(GuiThreadStart,
+        (translator.external_character_id[game_start_data.character_ID_port1],
+        translator.external_character_id[game_start_data.character_ID_port2],
+        translator.stage_index[game_start_data.stage]))
+    except:
+        print("Error: unable to start thread")
 
     #frame update
     command = ""
