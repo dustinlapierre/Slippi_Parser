@@ -1,5 +1,6 @@
 from translator import stage_index
 from math import *
+from random import *
 #left ledge positions
 #right ledge is (-x, y)
 ledge_position = {
@@ -51,6 +52,8 @@ def update_analytics(player1, player2, data):
     check_neutral(player1, player2, data)
     check_recovery(player1, player2, data)
 
+    #TODO add average hits per punish filler commentary (player times hit/opponents punishes)
+
     #recovery_analysis : more complex than other stats but doable
         #When player in damaged state off stage then offstage begins
         #if damaged state is gone during offstage (player didn't die from hit) then recovery/edge guard begins
@@ -68,7 +71,8 @@ def update_analytics(player1, player2, data):
     player2.shield_health_last = data[16]
     player2.percentage_last = data[15]
 
-def get_support_commentary(player1, player2, data, choice):
+def get_support_commentary(player1, player2, data):
+    choice = randint(0, 2)
     if(choice == 0):
         #stage control comment
         if(data[1] != 0):
@@ -138,7 +142,6 @@ def get_support_commentary(player1, player2, data, choice):
     #TODO check each one for weight, if the stats are interesting put those strings in a list
     #then randomly choose from the list
     #TODO add recovery comment
-    #TODO add shield pressure comment
 
 def check_stage_control(player1, player2, data):
     #stage control - when you are inside middle 100 pixels and opponent outside it

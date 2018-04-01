@@ -4,12 +4,11 @@ import win32con
 import time
 from ast import literal_eval
 import struct
-from random import *
 
 import LSTM
 import translator
 import structures
-from analytics import player_analytics, update_analytics, get_support_commentary
+from analytics import player_analytics, update_analytics, get_support_commentary, check_shield_pressure
 
 #Windows filesystem watcher code written by Tim Golden
 #Parser written by Dustin Lapierre
@@ -193,36 +192,46 @@ def post_frame_as_list():
     return data
 
 def LSTM_update(data_list):
+    global commentary_cooldown
+    commentary_cooldown -= 1
     #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
     update_analytics(player1_analytics, player2_analytics, data_list)
 
-    normalized_data_player1 = LSTM.normalize(data_list[3:7])
-    normalized_data_player2 = LSTM.normalize(data_list[11:15])
+    if(commentary_cooldown <= 0):
+        normalized_data_player1 = LSTM.normalize(data_list[3:7])
+        normalized_data_player2 = LSTM.normalize(data_list[11:15])
 
-    if(len(LSTM_batch1) < 120):
-        LSTM_batch.append(normalized_data_player1)
-    else:
-        pred = LSTM.make_prediction(LSTM_batch1)
-        del LSTM_batch1[:]
-        if(pred >= 0.85):
-            print("Player 1 is trying to bait out a commit with that dash dance!")
-    if(len(LSTM_batch2) < 120):
-        LSTM_batch.append(normalized_data_player2)
-    else:
-        pred = LSTM.make_prediction(LSTM_batch2)
-        del LSTM_batch2[:]
-        if(pred >= 0.85):
-            print("Player 2 is trying to bait out a commit with that dash dance!")
+        #LSTM dash dance check
+        if(len(LSTM_batch1) < 120):
+            LSTM_batch1.append(normalized_data_player1)
+        else:
+            pred = LSTM.make_prediction(LSTM_batch1)
+            del LSTM_batch1[:]
+            if(pred >= 0.85):
+                print("Player 1 is trying to bait out a commit with that dash dance!")
+                commentary_cooldown = 30
+        if(len(LSTM_batch2) < 120):
+            LSTM_batch2.append(normalized_data_player2)
+        else:
+            pred = LSTM.make_prediction(LSTM_batch2)
+            del LSTM_batch2[:]
+            if(pred >= 0.85):
+                print("Player 2 is trying to bait out a commit with that dash dance!")
+                commentary_cooldown = 30
 
-    #Print support commentary every 2 seconds
-    """
-    if(data_list[1] % 240 == 0 and data_list[1] < 50000):
-        file = open("GUI/input.txt","a")
-        #print(get_support_commentary(player1_analytics, player2_analytics, data_list, randint(0, 2)))
-        file.write(get_support_commentary(player1_analytics, player2_analytics, data_list, randint(0, 2)))
-        file.write("\n")
-        file.close()
-    """
+        #shield pressure check
+        pressure = check_shield_pressure(data_list)
+        if(pressure[0] == True):
+            print("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a skittle.")
+            commentary_cooldown = 60
+        elif(pressure[1] == True):
+            print("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a skittle.")
+            commentary_cooldown = 60
+
+        #Print support commentary if cooldown reaches -600 (10 seconds with nothing said)
+        if(commentary_cooldown <= -600):
+            print(get_support_commentary(player1_analytics, player2_analytics, data_list))
+            commentary_cooldown = 60
 
 def print_final_stats():
     print("Player 1 Stats ----------")
@@ -259,6 +268,7 @@ player1_data = []
 player2_data = []
 LSTM_batch1 = []
 LSTM_batch2 = []
+commentary_cooldown = 120
 
 #live parse the newly created file
 with open(full_filename, "rb") as replay:
@@ -280,7 +290,6 @@ with open(full_filename, "rb") as replay:
     #frame update
     command = ""
     flag = 0
-    players = 0
     while(flag != 1):
         #read command byte
         while(1):
@@ -307,13 +316,24 @@ with open(full_filename, "rb") as replay:
                 player2_data = post_frame_as_list()
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
+                """
                 file = open("meleedata.txt", "a")
                 file.write(str(LSTM.normalize(player1_data[1:5])))
                 file.write(",")
                 file.write("\n")
                 file.close()
+                """
                 LSTM_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data + player2_data)
         elif(command == structures.GAME_END):
+            data = read_frame(replay, 1)
+            game_end_data.game_end_method = hex_to_int([data[0]])
+            if(game_end_data.game_end_method == 3):
+                if(player1_data[7] == 0):
+                    print("Player 2 takes the game!")
+                else:
+                    print("Player 1 takes the game!")
+            else:
+                print("No Contest!")
             print_final_stats()
             flag = 1
 
