@@ -197,6 +197,8 @@ def LSTM_update(data_list):
     #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
     update_analytics(player1_analytics, player2_analytics, data_list)
 
+    #doesn't speak when on cooldown
+    #gives people time to read or text to speach to talk
     if(commentary_cooldown <= 0):
         normalized_data_player1 = LSTM.normalize(data_list[3:7])
         normalized_data_player2 = LSTM.normalize(data_list[11:15])
