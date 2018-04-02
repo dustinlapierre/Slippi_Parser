@@ -307,6 +307,7 @@ with open(full_filename, "rb") as replay:
     #frame update
     command = ""
     flag = 0
+    stocks = [0,0]
     while(flag != 1):
         #read command byte
         while(1):
@@ -333,8 +334,10 @@ with open(full_filename, "rb") as replay:
                 player2_data = post_frame_as_list()
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
-                connection.put([player1_data[7], player2_data[7]])
-                connection.join() #block until Gui grabs value
+                if(connection.empty() and stocks != [player1_data[7], player2_data[7]]):
+                    stocks = [player1_data[7], player2_data[7]]
+                    connection.put([player1_data[7], player2_data[7]])
+                    connection.join()
                 LSTM_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data + player2_data)
         elif(command == structures.GAME_END):
             data = read_frame(replay, 1)
