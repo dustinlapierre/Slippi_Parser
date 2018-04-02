@@ -58,8 +58,10 @@ class MainApp(App):
         Clock.schedule_interval(main.update, 0.25)
         return main
 
-def GuiThreadStart(character1, character2, stage):
+def GuiThreadStart(character1, character2, stage, connection):
     print(character1)
     print(character2)
     print(stage)
+    print(connection.get())
+    connection.task_done()
     MainApp().run()

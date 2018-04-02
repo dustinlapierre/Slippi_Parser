@@ -1,7 +1,8 @@
 import os
 import win32file
 import win32con
-import _thread
+import threading
+from queue import Queue
 import time
 from ast import literal_eval
 import struct
@@ -293,14 +294,15 @@ with open(full_filename, "rb") as replay:
             data.append(hex(ord(byte)))
 
     parse_game_start(data)
-    
-    try:
-        _thread.start_new_thread(GuiThreadStart,
-        (translator.external_character_id[game_start_data.character_ID_port1],
-        translator.external_character_id[game_start_data.character_ID_port2],
-        translator.stage_index[game_start_data.stage]))
-    except:
-        print("Error: unable to start thread")
+
+    #threading
+    connection = Queue()
+    Gui_thread = threading.Thread(target=GuiThreadStart, args=
+    (translator.external_character_id[game_start_data.character_ID_port1],
+    translator.external_character_id[game_start_data.character_ID_port2],
+    translator.stage_index[game_start_data.stage], connection))
+    Gui_thread.daemon = True
+    Gui_thread.start()
 
     #frame update
     command = ""
@@ -331,13 +333,8 @@ with open(full_filename, "rb") as replay:
                 player2_data = post_frame_as_list()
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
-                """
-                file = open("meleedata.txt", "a")
-                file.write(str(LSTM.normalize(player1_data[1:5])))
-                file.write(",")
-                file.write("\n")
-                file.close()
-                """
+                connection.put([player1_data[7], player2_data[7]])
+                connection.join() #block until Gui grabs value
                 LSTM_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data + player2_data)
         elif(command == structures.GAME_END):
             data = read_frame(replay, 1)
