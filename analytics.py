@@ -59,20 +59,10 @@ def update_analytics(player1, player2, data):
 
     update_flags(player1, player2, data)
     check_neutral(player1, player2, data)
-    check_recovery(player1, player2)
+    check_recovery(player1, player2, data)
     on_death_check(player1, player2, data)
 
     #TODO add average hits per punish filler commentary (player times hit/opponents punishes)
-
-    #recovery_analysis : more complex than other stats but doable
-        #When player in damaged state off stage then offstage begins
-        #if damaged state is gone during offstage (player didn't die from hit) then recovery/edge guard begins
-            #ON DEATH
-            #if offstage = true and recovery = false: initial hit killed player
-                #reset all flags
-            #if offstage and recovery = True
-                #recovery failed, edge guard success, reset flags
-        #If player reaches stage, reset flags
 
 
     #update shield and percentage for next run
@@ -181,10 +171,9 @@ def get_support_commentary(player1, player2, data):
         else:
             return "Neither player has been able to score a single neutral win"
     elif(choice == CommentaryNumber.RECOVERY):
-        return "Recovery"
-    #TODO check each one for weight, if the stats are interesting put those strings in a list
-    #then randomly choose from the list
-    #TODO add recovery comment
+        return "Recovery Commentary Stub"
+    #TODO Create rotating list of commentary history
+    #TODO fill in recovery comment
 
 def check_stage_control(player1, player2, data):
     #stage control - when you are inside middle 100 pixels and opponent outside it
@@ -234,12 +223,12 @@ def update_flags(player1, player2, data):
         player2.punish_time = 0
 
     #damaged check
-    if(data[3] in range(75, 91)):
+    if(data[3] in range(75, 92)):
         player1.damaged_state = True
     else:
         player1.damaged_state = False
 
-    if(data[11] in range(75, 91)):
+    if(data[11] in range(75, 92)):
         player2.damaged_state = True
     else:
         player2.damaged_state = False
@@ -250,43 +239,46 @@ def update_flags(player1, player2, data):
     if((abs(data[4]) > abs(edge[0])) or (data[5] < (edge[1] - 10))):
         player1.offstage_state = True
     else:
-        if(player1.recovery_state == True and data[3] not in range(0, 13)):
-            player1.recovery_state = False
-            player1.recovery_success += 1
         player1.offstage_state = False
 
     if((abs(data[12]) > abs(edge[0])) or (data[13] < (edge[1] - 10))):
         player2.offstage_state = True
     else:
-        if(player2.recovery_state == True and data[11] not in range(0, 13)):
-            player2.recovery_state = False
-            player2.recovery_success += 1
         player2.offstage_state = False
 
-def check_recovery(player1, player2):
+def check_recovery(player1, player2, data):
     #recovery check
     if(player1.offstage_state == True and player1.damaged_state == False):
-        player1.recovery_state = True
+        if(data[3] not in range(0, 13)):
+            player1.recovery_state = True
     if(player2.offstage_state == True and player2.damaged_state == False):
-        player2.recovery_state = True
+        if(data[11] not in range(0, 13)):
+            player2.recovery_state = True
 
 def on_death_check(player1, player2, data):
-    if(data[3] == 12):
+    edge = ledge_position[stage_index[data[0]]]
+    if(data[3] in range(0, 13) and player1.recovery_state == True):
+        player1.recovery_state = False
+        player1.punish_state = False
+        player1.damaged_state = False
+        player1.offstage_state = False
+        player1.punish_time = 0
+        player1.recovery_fail += 1
+    if(not (abs(data[4]) > abs(edge[0]+10)) and (data[5] > (edge[1] - 10))):
         if(player1.recovery_state == True):
             player1.recovery_state = False
-            player1.punish_state = False
-            player1.damaged_state = False
-            player1.offstage_state = False
-            player1.punish_time = 0
-            player1.recovery_fail += 1
-    if(data[11] == 12):
+            player1.recovery_success += 1
+    if(data[11] in range(0, 13) and player2.recovery_state == True):
+        player2.recovery_state = False
+        player2.punish_state = False
+        player2.damaged_state = False
+        player2.offstage_state = False
+        player2.punish_time = 0
+        player2.recovery_fail += 1
+    if(not (abs(data[12]) > abs(edge[0]+10)) and (data[13] > (edge[1] - 10))):
         if(player2.recovery_state == True):
             player2.recovery_state = False
-            player2.punish_state = False
-            player2.damaged_state = False
-            player2.offstage_state = False
-            player2.punish_time = 0
-            player2.recovery_fail += 1
+            player2.recovery_success += 1
 
 def check_shield_pressure(data):
     #returns boolean tuple, (player1, player2)

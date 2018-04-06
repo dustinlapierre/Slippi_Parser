@@ -202,9 +202,6 @@ def LSTM_update(data_list):
     commentary_cooldown -= 1
     #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
     update_analytics(player1_analytics, player2_analytics, data_list)
-    clear()
-    print("PLAYER1", player1_analytics.recovery_success, player1_analytics.recovery_fail)
-    print("PLAYER2", player2_analytics.recovery_success, player2_analytics.recovery_fail)
 
     #doesn't speak when on cooldown
     #gives people time to read or text to speach to talk
@@ -252,6 +249,8 @@ def print_final_stats():
     print("Successful blocks:", player1_analytics.block_success)
     print("Times hit:", player1_analytics.block_failed)
     print("Punishes:", player1_analytics.punish_amount)
+    if(player1_analytics.recovery_success != 0)
+        print("Recovery %:", player1_analytics.recovery_success/(player1_analytics.recovery_success+player1_analytics.recovery_fail))
     if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
         print("Neutral Win %:", (player1_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount)))
             #neutral win % = (# punishes by this player/# of punishes total)
@@ -262,6 +261,8 @@ def print_final_stats():
     print("Successful blocks:", player2_analytics.block_success)
     print("Times hit:", player2_analytics.block_failed)
     print("Punishes:", player2_analytics.punish_amount)
+    if(player2_analytics.recovery_success != 0)
+        print("Recovery %:", player2_analytics.recovery_success/(player2_analytics.recovery_success+player2_analytics.recovery_fail))
     if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
         print("Neutral Win %:", (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount)))
             #neutral win % = (# punishes by this player/# of punishes total)
