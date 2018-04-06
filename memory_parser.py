@@ -249,7 +249,7 @@ def print_final_stats():
     print("Successful blocks:", player1_analytics.block_success)
     print("Times hit:", player1_analytics.block_failed)
     print("Punishes:", player1_analytics.punish_amount)
-    if(player1_analytics.recovery_success != 0)
+    if(player1_analytics.recovery_success != 0):
         print("Recovery %:", player1_analytics.recovery_success/(player1_analytics.recovery_success+player1_analytics.recovery_fail))
     if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
         print("Neutral Win %:", (player1_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount)))
@@ -261,7 +261,7 @@ def print_final_stats():
     print("Successful blocks:", player2_analytics.block_success)
     print("Times hit:", player2_analytics.block_failed)
     print("Punishes:", player2_analytics.punish_amount)
-    if(player2_analytics.recovery_success != 0)
+    if(player2_analytics.recovery_success != 0):
         print("Recovery %:", player2_analytics.recovery_success/(player2_analytics.recovery_success+player2_analytics.recovery_fail))
     if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
         print("Neutral Win %:", (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount)))

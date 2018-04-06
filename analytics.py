@@ -2,6 +2,10 @@ from translator import stage_index
 from math import *
 from random import *
 from enum import Enum
+from collections import deque
+
+#history of last three things said
+commentary_history = deque([])
 
 #left ledge positions
 #right ledge is (-x, y)
@@ -61,6 +65,7 @@ def update_analytics(player1, player2, data):
     check_neutral(player1, player2, data)
     check_recovery(player1, player2, data)
     on_death_check(player1, player2, data)
+    print(commentary_history)
 
     #TODO add average hits per punish filler commentary (player times hit/opponents punishes)
 
@@ -71,6 +76,13 @@ def update_analytics(player1, player2, data):
     player2.shield_health_last = data[16]
     player2.percentage_last = data[15]
 
+def add_history(com_number):
+    if(len(commentary_history) < 3):
+        commentary_history.append(com_number)
+    else:
+        commentary_history.popleft()
+        commentary_history.append(com_number)
+
 def flatten(x, min, max):
     return ((x-min) / (max-min))
 
@@ -80,32 +92,33 @@ def select_commentary_by_weight(player1, player2, history):
     weight = abs(player1.stage_control - player2.stage_control)
     weight = flatten(weight, 0, 14400)
     if(CommentaryNumber.STAGE_CONTROL in history):
-        weight = weight/2
+        weight = weight/(history.count(CommentaryNumber.STAGE_CONTROL)+1)
     weights.append(weight)
     #weight block success
     weight = abs(player1.block_success - player2.block_success)
     weight = flatten(weight, 0, 100)
     if(CommentaryNumber.BLOCK_SUCCESS in history):
-        weight = weight/2
+        weight = weight/(history.count(CommentaryNumber.BLOCK_SUCCESS)+1)
     weights.append(weight)
     #weight neutral
     weight = abs(player1.punish_amount - player2.punish_amount)
     weight = flatten(weight, 0, 100)
     if(CommentaryNumber.NEUTRAL_WINS in history):
-        weight = weight/2
+        weight = weight/(history.count(CommentaryNumber.NEUTRAL_WINS)+1)
     weights.append(weight)
     #weight recovery
     weight = abs(player1.recovery_success - player2.recovery_success)
     weight = flatten(weight, 0, 50)
     if(CommentaryNumber.RECOVERY in history):
-        weight = weight/2
+        weight = weight/(history.count(CommentaryNumber.RECOVERY)+1)
     weights.append(weight)
 
     return CommentaryNumber(weights.index(max(weights)))
 
 def get_support_commentary(player1, player2, data):
-    choice = select_commentary_by_weight(player1, player2, [])
+    choice = select_commentary_by_weight(player1, player2, commentary_history)
     if(choice == CommentaryNumber.STAGE_CONTROL):
+        add_history(CommentaryNumber.STAGE_CONTROL)
         #stage control comment
         if(data[1] != 0):
             p1_stage = player1.stage_control/data[1]
@@ -122,6 +135,7 @@ def get_support_commentary(player1, player2, data):
             return "Stage control has been hotly contested this match"
 
     elif(choice == CommentaryNumber.BLOCK_SUCCESS):
+        add_history(CommentaryNumber.BLOCK_SUCCESS)
         #talk about leading player and their block success
         if((player1.block_success + player1.block_failed) != 0):
             p1_block = player1.block_success/(player1.block_success + player1.block_failed)
@@ -144,8 +158,8 @@ def get_support_commentary(player1, player2, data):
             else:
                 return "I'm seeing really strong defense from both players"
 
-
     elif(choice == CommentaryNumber.NEUTRAL_WINS):
+        add_history(CommentaryNumber.NEUTRAL_WINS)
         #neutral comment
         if((player1.punish_amount + player2.punish_amount) != 0):
             player1_nooch = (player1.punish_amount/(player1.punish_amount + player2.punish_amount))
@@ -171,6 +185,7 @@ def get_support_commentary(player1, player2, data):
         else:
             return "Neither player has been able to score a single neutral win"
     elif(choice == CommentaryNumber.RECOVERY):
+        add_history(CommentaryNumber.RECOVERY)
         return "Recovery Commentary Stub"
     #TODO Create rotating list of commentary history
     #TODO fill in recovery comment
