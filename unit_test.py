@@ -43,6 +43,11 @@ class TestShieldPressure(unittest.TestCase):
 
 class TestRecovery(unittest.TestCase):
     def test_recovery_state(self):
+        mock_data = [
+                    32, 999,
+                    0, 14, 110.0, -50.0, 1.0, 0.0, 60.0, 4,
+                    1, 91, 110.0, 50.0, 1.0, 0.0, 60.0, 4
+                    ]
         mock_player1 = player_analytics()
         mock_player1.offstage_state = True
         mock_player1.damaged_state = False
@@ -50,7 +55,7 @@ class TestRecovery(unittest.TestCase):
         mock_player2.offstage_state = True
         mock_player2.damaged_state = True
 
-        check_recovery(mock_player1, mock_player2)
+        check_recovery(mock_player1, mock_player2, mock_data)
 
         self.assertEqual(mock_player1.recovery_state, True)
         self.assertEqual(mock_player2.recovery_state, False)
