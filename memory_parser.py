@@ -202,6 +202,9 @@ def LSTM_update(data_list):
     commentary_cooldown -= 1
     #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
     update_analytics(player1_analytics, player2_analytics, data_list)
+    clear()
+    print("PLAYER1", player1_analytics.recovery_success, player1_analytics.recovery_fail)
+    print("PLAYER2", player2_analytics.recovery_success, player2_analytics.recovery_fail)
 
     #doesn't speak when on cooldown
     #gives people time to read or text to speach to talk

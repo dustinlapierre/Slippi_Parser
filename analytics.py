@@ -1,6 +1,8 @@
 from translator import stage_index
 from math import *
 from random import *
+from enum import Enum
+
 #left ledge positions
 #right ledge is (-x, y)
 ledge_position = {
@@ -11,6 +13,13 @@ ledge_position = {
     "Battlefield": (-73, -10),
     "Final Destination": (-90, -10)
 }
+
+#enum for all possible commentary statements
+class CommentaryNumber(Enum):
+    STAGE_CONTROL = 0
+    BLOCK_SUCCESS = 1
+    NEUTRAL_WINS = 2
+    RECOVERY = 3
 
 class player_analytics:
     #shield health last frame (for detecting blocks)
@@ -50,7 +59,8 @@ def update_analytics(player1, player2, data):
 
     update_flags(player1, player2, data)
     check_neutral(player1, player2, data)
-    check_recovery(player1, player2, data)
+    check_recovery(player1, player2)
+    on_death_check(player1, player2, data)
 
     #TODO add average hits per punish filler commentary (player times hit/opponents punishes)
 
@@ -71,9 +81,41 @@ def update_analytics(player1, player2, data):
     player2.shield_health_last = data[16]
     player2.percentage_last = data[15]
 
+def flatten(x, min, max):
+    return ((x-min) / (max-min))
+
+def select_commentary_by_weight(player1, player2, history):
+    weights = []
+    #weight stage control
+    weight = abs(player1.stage_control - player2.stage_control)
+    weight = flatten(weight, 0, 14400)
+    if(CommentaryNumber.STAGE_CONTROL in history):
+        weight = weight/2
+    weights.append(weight)
+    #weight block success
+    weight = abs(player1.block_success - player2.block_success)
+    weight = flatten(weight, 0, 100)
+    if(CommentaryNumber.BLOCK_SUCCESS in history):
+        weight = weight/2
+    weights.append(weight)
+    #weight neutral
+    weight = abs(player1.punish_amount - player2.punish_amount)
+    weight = flatten(weight, 0, 100)
+    if(CommentaryNumber.NEUTRAL_WINS in history):
+        weight = weight/2
+    weights.append(weight)
+    #weight recovery
+    weight = abs(player1.recovery_success - player2.recovery_success)
+    weight = flatten(weight, 0, 50)
+    if(CommentaryNumber.RECOVERY in history):
+        weight = weight/2
+    weights.append(weight)
+
+    return CommentaryNumber(weights.index(max(weights)))
+
 def get_support_commentary(player1, player2, data):
-    choice = randint(0, 2)
-    if(choice == 0):
+    choice = select_commentary_by_weight(player1, player2, [])
+    if(choice == CommentaryNumber.STAGE_CONTROL):
         #stage control comment
         if(data[1] != 0):
             p1_stage = player1.stage_control/data[1]
@@ -89,7 +131,7 @@ def get_support_commentary(player1, player2, data):
         else:
             return "Stage control has been hotly contested this match"
 
-    elif(choice == 1):
+    elif(choice == CommentaryNumber.BLOCK_SUCCESS):
         #talk about leading player and their block success
         if((player1.block_success + player1.block_failed) != 0):
             p1_block = player1.block_success/(player1.block_success + player1.block_failed)
@@ -113,7 +155,7 @@ def get_support_commentary(player1, player2, data):
                 return "I'm seeing really strong defense from both players"
 
 
-    elif(choice == 2):
+    elif(choice == CommentaryNumber.NEUTRAL_WINS):
         #neutral comment
         if((player1.punish_amount + player2.punish_amount) != 0):
             player1_nooch = (player1.punish_amount/(player1.punish_amount + player2.punish_amount))
@@ -138,7 +180,8 @@ def get_support_commentary(player1, player2, data):
                 return output
         else:
             return "Neither player has been able to score a single neutral win"
-
+    elif(choice == CommentaryNumber.RECOVERY):
+        return "Recovery"
     #TODO check each one for weight, if the stats are interesting put those strings in a list
     #then randomly choose from the list
     #TODO add recovery comment
@@ -207,25 +250,47 @@ def update_flags(player1, player2, data):
     if((abs(data[4]) > abs(edge[0])) or (data[5] < (edge[1] - 10))):
         player1.offstage_state = True
     else:
+        if(player1.recovery_state == True and data[3] not in range(0, 13)):
+            player1.recovery_state = False
+            player1.recovery_success += 1
         player1.offstage_state = False
 
     if((abs(data[12]) > abs(edge[0])) or (data[13] < (edge[1] - 10))):
         player2.offstage_state = True
     else:
+        if(player2.recovery_state == True and data[11] not in range(0, 13)):
+            player2.recovery_state = False
+            player2.recovery_success += 1
         player2.offstage_state = False
 
-
-def check_recovery(player1, player2, data):
+def check_recovery(player1, player2):
     #recovery check
     if(player1.offstage_state == True and player1.damaged_state == False):
         player1.recovery_state = True
     if(player2.offstage_state == True and player2.damaged_state == False):
         player2.recovery_state = True
 
+def on_death_check(player1, player2, data):
+    if(data[3] == 12):
+        if(player1.recovery_state == True):
+            player1.recovery_state = False
+            player1.punish_state = False
+            player1.damaged_state = False
+            player1.offstage_state = False
+            player1.punish_time = 0
+            player1.recovery_fail += 1
+    if(data[11] == 12):
+        if(player2.recovery_state == True):
+            player2.recovery_state = False
+            player2.punish_state = False
+            player2.damaged_state = False
+            player2.offstage_state = False
+            player2.punish_time = 0
+            player2.recovery_fail += 1
+
 def check_shield_pressure(data):
     #returns boolean tuple, (player1, player2)
     #True means player is currently pressuring shield
-
     #players are close
     distance = sqrt(pow((data[12] - data[4]), 2) + pow((data[13] - data[5]), 2))
     if(distance < 15):
@@ -241,7 +306,6 @@ def check_shield_pressure(data):
 def check_neutral(player1, player2, data):
     #check_neutral - (# punishes by this player/# of punishes total)
         #punish - starts when player takes damage, ends when player is on stage and doesnt take damage for 120 frames (2 seconds)
-
     #punish time increment
     if(player1.damaged_state == False and player1.offstage_state == False and player1.punish_state == True):
         player1.punish_time += 1
