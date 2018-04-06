@@ -65,7 +65,6 @@ def update_analytics(player1, player2, data):
     check_neutral(player1, player2, data)
     check_recovery(player1, player2, data)
     on_death_check(player1, player2, data)
-    print(commentary_history)
 
     #TODO add average hits per punish filler commentary (player times hit/opponents punishes)
 

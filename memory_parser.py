@@ -236,8 +236,9 @@ def LSTM_update(data_list):
             print("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a skittle.")
             commentary_cooldown = 60
 
-        #Print support commentary if cooldown reaches -600 (10 seconds with nothing said)
-        if(commentary_cooldown <= -600):
+        #TODO character specific stuff
+        #Print support commentary if cooldown reaches -600 (3 seconds with nothing said)
+        if(commentary_cooldown <= -180):
             print(get_support_commentary(player1_analytics, player2_analytics, data_list))
             commentary_cooldown = 60
 
