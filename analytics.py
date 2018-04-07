@@ -2,10 +2,9 @@ from translator import stage_index
 from math import *
 from random import *
 from enum import Enum
-from collections import deque
 
 #history of last three things said
-commentary_history = deque([])
+commentary_history = []
 
 #left ledge positions
 #right ledge is (-x, y)
@@ -24,6 +23,9 @@ class CommentaryNumber(Enum):
     BLOCK_SUCCESS = 1
     NEUTRAL_WINS = 2
     RECOVERY = 3
+    PUNISH = 4
+    OFFSTAGE = 5
+    ABOVE = 6
 
 class player_analytics:
     #shield health last frame (for detecting blocks)
@@ -36,6 +38,8 @@ class player_analytics:
     above_opponent = 0
     #number of frames spent in shield
     time_shielded = 0
+    #number of frames offstage
+    time_offstage = 0
     #number of sucessful/failed recoveries
     recovery_success = 0
     recovery_fail = 0
@@ -66,7 +70,7 @@ def update_analytics(player1, player2, data):
     check_recovery(player1, player2, data)
     on_death_check(player1, player2, data)
 
-    #TODO add average hits per punish filler commentary (player times hit/opponents punishes)
+    #TODO remove passing history as parameter and see if it breaks test (fix if so)
 
 
     #update shield and percentage for next run
@@ -76,10 +80,11 @@ def update_analytics(player1, player2, data):
     player2.percentage_last = data[15]
 
 def add_history(com_number):
-    if(len(commentary_history) < 3):
+    if(len(commentary_history) < 4):
         commentary_history.append(com_number)
     else:
-        commentary_history.popleft()
+        #pop the front off then append
+        del commentary_history[0]
         commentary_history.append(com_number)
 
 def flatten(x, min, max):
@@ -89,7 +94,7 @@ def select_commentary_by_weight(player1, player2, history):
     weights = []
     #weight stage control
     weight = abs(player1.stage_control - player2.stage_control)
-    weight = flatten(weight, 0, 14400)
+    weight = flatten(weight, 0, 10000)
     if(CommentaryNumber.STAGE_CONTROL in history):
         weight = weight/(history.count(CommentaryNumber.STAGE_CONTROL)+1)
     weights.append(weight)
@@ -111,6 +116,27 @@ def select_commentary_by_weight(player1, player2, history):
     if(CommentaryNumber.RECOVERY in history):
         weight = weight/(history.count(CommentaryNumber.RECOVERY)+1)
     weights.append(weight)
+    #weight punish
+    if(player2.block_failed != 0 and player1.block_failed != 0):
+        weight = abs((player1.punish_amount/player2.block_failed) - (player2.punish_amount/player1.block_failed))
+        weight = flatten(weight, 0, 15)
+    else:
+        weight = 0
+    if(CommentaryNumber.PUNISH in history):
+        weight = weight/(history.count(CommentaryNumber.PUNISH)+1)
+    weights.append(weight)
+    #weight offstage
+    weight = abs(player1.time_offstage - player2.time_offstage)
+    weight = flatten(weight, 0, 10000)
+    if(CommentaryNumber.OFFSTAGE in history):
+        weight = weight/(history.count(CommentaryNumber.OFFSTAGE)+1)
+    weights.append(weight)
+    #weight above
+    weight = abs(player1.above_opponent - player2.above_opponent)
+    weight = flatten(weight, 0, 10000)
+    if(CommentaryNumber.ABOVE in history):
+        weight = weight/(history.count(CommentaryNumber.ABOVE)+1)
+    weights.append(weight)
 
     return CommentaryNumber(weights.index(max(weights)))
 
@@ -118,7 +144,6 @@ def get_support_commentary(player1, player2, data):
     choice = select_commentary_by_weight(player1, player2, commentary_history)
     if(choice == CommentaryNumber.STAGE_CONTROL):
         add_history(CommentaryNumber.STAGE_CONTROL)
-        #stage control comment
         if(data[1] != 0):
             p1_stage = player1.stage_control/data[1]
             p2_stage = player2.stage_control/data[1]
@@ -135,7 +160,6 @@ def get_support_commentary(player1, player2, data):
 
     elif(choice == CommentaryNumber.BLOCK_SUCCESS):
         add_history(CommentaryNumber.BLOCK_SUCCESS)
-        #talk about leading player and their block success
         if((player1.block_success + player1.block_failed) != 0):
             p1_block = player1.block_success/(player1.block_success + player1.block_failed)
         else:
@@ -159,7 +183,6 @@ def get_support_commentary(player1, player2, data):
 
     elif(choice == CommentaryNumber.NEUTRAL_WINS):
         add_history(CommentaryNumber.NEUTRAL_WINS)
-        #neutral comment
         if((player1.punish_amount + player2.punish_amount) != 0):
             player1_nooch = (player1.punish_amount/(player1.punish_amount + player2.punish_amount))
             player2_nooch = (player2.punish_amount/(player1.punish_amount + player2.punish_amount))
@@ -183,11 +206,59 @@ def get_support_commentary(player1, player2, data):
                 return output
         else:
             return "Neither player has been able to score a single neutral win"
+
     elif(choice == CommentaryNumber.RECOVERY):
         add_history(CommentaryNumber.RECOVERY)
-        return "Recovery Commentary Stub"
-    #TODO Create rotating list of commentary history
-    #TODO fill in recovery comment
+        if(player1.recovery_success > player2.recovery_success):
+            if(data[9] >= data[17]):
+                return "Player 1's recovery has been solid this game"
+            if(data[9] < data[17]):
+                return "Player 1's recovery has been good, but it just isn't enough to stay ahead"
+        elif(player2.recovery_success > player1.recovery_success):
+            if(data[17] >= data[9]):
+                return "Player 2's recovery has been solid this game"
+            if(data[17] < data[9]):
+                return "Player 2's recovery has been good, but it just isn't enough to stay ahead"
+        else:
+            return "Both player's recovery is looking good"
+
+    elif(choice == CommentaryNumber.PUNISH):
+        add_history(CommentaryNumber.PUNISH)
+        if(player1.block_failed != 0 and player2.block_failed != 0):
+            p1_punish = (player2.block_failed/player1.punish_amount)
+            p2_punish = (player1.block_failed/player2.punish_amount)
+        else:
+            p1_punish, p2_punish = 0, 0
+        if(p1_punish > p2_punish):
+            return "Player 1 has been getting a lot more off their openings"
+        elif(p1_punish < p2_punish):
+            return "Player 2 has been getting a lot more off their openings"
+        else:
+            return "The punish game from both players has been close to even"
+
+    elif(choice == CommentaryNumber.OFFSTAGE):
+        add_history(CommentaryNumber.OFFSTAGE)
+        if(player1.time_offstage > player2.time_offstage):
+            return "Player 2 isn't allowing Player 1 to get their footing on stage"
+        elif(player2.time_offstage > player1.time_offstage):
+            return "Player 1 isn't allowing Player 2 to get their footing on stage"
+        else:
+            return "Hard to say which player has spent more time offstage"
+
+    elif(choice == CommentaryNumber.ABOVE):
+        add_history(CommentaryNumber.ABOVE)
+        if(player1.above_opponent > player2.above_opponent):
+            if(data[9] < data[17]):
+                return "Player 2 has been doing well juggling Player 1 in the air"
+            elif(data[9] >= data[17]):
+                return "Player 1 has been playing the vertical advantage and attacking from above"
+        elif(player1.above_opponent > player2.above_opponent):
+            if(data[17] < data[9]):
+                return "Player 1 has been doing well juggling Player 2 in the air"
+            elif(data[17] >= data[9]):
+                return "Player 2 has been playing the vertical advantage and attacking from above"
+        else:
+            return "The players are staying grounded"
 
 def check_stage_control(player1, player2, data):
     #stage control - when you are inside middle 100 pixels and opponent outside it
@@ -252,11 +323,13 @@ def update_flags(player1, player2, data):
     #offstage = x > edge_x+characterlen or y < -10 (under stage)
     if((abs(data[4]) > abs(edge[0])) or (data[5] < (edge[1] - 10))):
         player1.offstage_state = True
+        player1.time_offstage += 1
     else:
         player1.offstage_state = False
 
     if((abs(data[12]) > abs(edge[0])) or (data[13] < (edge[1] - 10))):
         player2.offstage_state = True
+        player2.time_offstage += 1
     else:
         player2.offstage_state = False
 

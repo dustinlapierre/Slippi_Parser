@@ -1,10 +1,17 @@
 structures for player data to clean up code and remove magic numbers
 shield pressure (add attack state check)
 
-testing class ----
-    *new support commentary
-
 translator move check for top tiers
 
 hex to int and int to hex conversion moved to another file along with all the parse functions
 move LSTM update to the LSTM file
+
+
+Wobble check
+Shine spike check
+Knee or falcon punch check
+Dair check for marth and falco - when opponent offstage
+Rest check
+Peach stitch check, if carrying an item and item is stitch? If not maybe a dsmash check and make a blender joke.
+
+Matchup chart - Character matchups for the top 8 characters. This would allow the commentator to mention if one players character counters the others, and who has the matchup advantage.

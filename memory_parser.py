@@ -230,15 +230,15 @@ def LSTM_update(data_list):
         #shield pressure check
         pressure = check_shield_pressure(data_list)
         if(pressure[0] == True):
-            print("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a skittle.")
+            print("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.")
             commentary_cooldown = 60
         elif(pressure[1] == True):
-            print("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a skittle.")
+            print("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.")
             commentary_cooldown = 60
 
         #TODO character specific stuff
-        #Print support commentary if cooldown reaches -600 (3 seconds with nothing said)
-        if(commentary_cooldown <= -180):
+        #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
+        if(commentary_cooldown <= -300):
             print(get_support_commentary(player1_analytics, player2_analytics, data_list))
             commentary_cooldown = 60
 
@@ -246,27 +246,32 @@ def print_final_stats():
     print("Player 1 Stats ----------")
     print("Frames in stage control:", player1_analytics.stage_control)
     print("Frames above opponent:", player1_analytics.above_opponent)
+    print("Frames offstage:", player1_analytics.time_offstage)
     print("Frames shielding:", player1_analytics.time_shielded)
     print("Successful blocks:", player1_analytics.block_success)
     print("Times hit:", player1_analytics.block_failed)
     print("Punishes:", player1_analytics.punish_amount)
+    if(player2_analytics.block_failed != 0):
+        print("Hits per punish:", (player2_analytics.block_failed/player1_analytics.punish_amount))
     if(player1_analytics.recovery_success != 0):
-        print("Recovery %:", player1_analytics.recovery_success/(player1_analytics.recovery_success+player1_analytics.recovery_fail))
+        print("Recovery %:", (player1_analytics.recovery_success/(player1_analytics.recovery_success+player1_analytics.recovery_fail))*100)
     if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
-        print("Neutral Win %:", (player1_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount)))
-            #neutral win % = (# punishes by this player/# of punishes total)
+        print("Neutral Win %:", (player1_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))*100)
+
     print("Player 2 Stats ----------")
     print("Frames in stage control:", player2_analytics.stage_control)
     print("Frames above opponent:", player2_analytics.above_opponent)
+    print("Frames offstage:", player2_analytics.time_offstage)
     print("Frames shielding:", player2_analytics.time_shielded)
     print("Successful blocks:", player2_analytics.block_success)
     print("Times hit:", player2_analytics.block_failed)
     print("Punishes:", player2_analytics.punish_amount)
+    if(player1_analytics.block_failed != 0):
+        print("Hits per punish:", (player1_analytics.block_failed/player2_analytics.punish_amount))
     if(player2_analytics.recovery_success != 0):
-        print("Recovery %:", player2_analytics.recovery_success/(player2_analytics.recovery_success+player2_analytics.recovery_fail))
+        print("Recovery %:", (player2_analytics.recovery_success/(player2_analytics.recovery_success+player2_analytics.recovery_fail))*100)
     if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
-        print("Neutral Win %:", (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount)))
-            #neutral win % = (# punishes by this player/# of punishes total)
+        print("Neutral Win %:", (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))*100)
 
 #data holders
 #variable values will be updated each time one of these
