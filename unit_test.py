@@ -88,5 +88,14 @@ class TestCommentaryWeight(unittest.TestCase):
         self.assertEqual(select_commentary_by_weight(mock_player1, mock_player2, commentary_history),
                         CommentaryNumber.BLOCK_SUCCESS)
 
+class TestMatchupChart(unittest.TestCase):
+    def test_matchups(self):
+        self.assertEqual(get_matchup_score("Fox", "Fox"), 0)
+        self.assertEqual(get_matchup_score("Fox", "Captain Falcon"), 2)
+        self.assertEqual(get_matchup_score("Captain Falcon", "Falco"), -2)
+        self.assertEqual(get_matchup_score("Falco", "Marth"), 0)
+        self.assertEqual(get_matchup_score("Marth", "Fox"), 0)
+        self.assertEqual(get_matchup_score("Bowser", "Peach"), "This is a matchup we don't see often!")
+
 if __name__ == '__main__':
     unittest.main()

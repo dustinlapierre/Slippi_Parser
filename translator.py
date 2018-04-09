@@ -1,3 +1,54 @@
+fox_matchups = {
+    "Fox" : 0,
+    "Falco" : 0,
+    "Marth" : 0,
+    "Shiek" : 1,
+    "Jigglypuff" : 1,
+    "Peach" : 1,
+    "Ice Climbers" : 1,
+    "Captain Falcon" : 2
+}
+
+falco_matchups = {
+    "Fox" : 0,
+    "Falco" : 0,
+    "Marth" : 0,
+    "Shiek" : 0,
+    "Jigglypuff" : 0,
+    "Peach" : 0,
+    "Ice Climbers" : 0,
+    "Captain Falcon" : 2
+}
+
+marth_matchups = {
+    "Fox" : 0,
+    "Falco" : 0,
+    "Marth" : 0,
+    "Shiek" : -1,
+    "Jigglypuff" : -1,
+    "Peach" : 1,
+    "Ice Climbers" : 1,
+    "Captain Falcon" : 0
+}
+
+falcon_matchups = {
+    "Fox" : -2,
+    "Falco" : -2,
+    "Marth" : 0,
+    "Shiek" : -1,
+    "Jigglypuff" : -1,
+    "Peach" : 1,
+    "Ice Climbers" : 0,
+    "Captain Falcon" : 0
+}
+
+matchup_guide = {
+    "Fox" : fox_matchups,
+    "Captain Falcon" : falcon_matchups,
+    "Falco" : falco_matchups,
+    "Marth" : marth_matchups
+}
+
 #keys are int values (convert hex to int)
 internal_character_id = {
     0 : "Mario",

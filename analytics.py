@@ -102,9 +102,6 @@ def character_specific_commentary(player1_character, player2_character, player1,
             if(data[11] in translator.puff_special_action_id):
                 if(data[11] in range(369, 373)):
                     return "Player 2 connects a rest, Player 1 wants to die off the side so they can get a punish"
-    #offstage dair (Falco and Marth)
-    #Wobble
-    #Falcon Punch
     return "none"
 
 def add_history(com_number):
@@ -287,6 +284,13 @@ def get_support_commentary(player1, player2, data):
                 return "Player 2 has been playing the vertical advantage and attacking from above"
         else:
             return "The players are staying grounded"
+
+def get_matchup_score(player1_character, player2_character):
+    #this will eventually return a string discussing the matchup from player 1's perspective
+    if(player1_character in translator.matchup_guide and player2_character in translator.matchup_guide):
+        return translator.matchup_guide[player1_character][player2_character]
+    else:
+        return "This is a matchup we don't see often!"
 
 def check_stage_control(player1, player2, data):
     #stage control - when you are inside middle 100 pixels and opponent outside it
