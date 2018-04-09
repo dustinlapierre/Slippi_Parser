@@ -10,7 +10,7 @@ import struct
 import LSTM
 import translator
 import structures
-from analytics import player_analytics, update_analytics, get_support_commentary, check_shield_pressure
+from analytics import *
 
 import sys
 sys.path.insert(0, 'GUI/')
@@ -236,11 +236,18 @@ def LSTM_update(data_list):
             print("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.")
             commentary_cooldown = 60
 
-        #TODO character specific stuff
+        #character specific stuff
+        character_com = character_specific_commentary(player1_character, player2_character, player1_analytics, player2_analytics, data_list)
+        if(character_com != "none"):
+            print(character_com)
+            commentary_cooldown = 60
+
         #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
         if(commentary_cooldown <= -300):
             print(get_support_commentary(player1_analytics, player2_analytics, data_list))
             commentary_cooldown = 60
+
+    update_analytics_frame_buffer(player1_analytics, player2_analytics, data_list)
 
 def print_final_stats():
     print("Player 1 Stats ----------")
@@ -282,6 +289,8 @@ post_frame_data = structures.post_frame_event()
 game_end_data = structures.game_end_event()
 player1_analytics = player_analytics()
 player2_analytics = player_analytics()
+player1_character = ""
+player2_character = ""
 player1_data = []
 player2_data = []
 LSTM_batch1 = []
@@ -304,12 +313,14 @@ with open(full_filename, "rb") as replay:
             data.append(hex(ord(byte)))
 
     parse_game_start(data)
+    player1_character = translator.external_character_id[game_start_data.character_ID_port1]
+    player2_character = translator.external_character_id[game_start_data.character_ID_port2]
 
     #threading
     connection = Queue()
     Gui_thread = threading.Thread(target=GuiThreadStart, args=
-    (translator.external_character_id[game_start_data.character_ID_port1],
-    translator.external_character_id[game_start_data.character_ID_port2],
+    (player1_character,
+    player2_character,
     translator.stage_index[game_start_data.stage], connection))
     Gui_thread.daemon = True
     Gui_thread.start()

@@ -2,6 +2,7 @@ from translator import stage_index
 from math import *
 from random import *
 from enum import Enum
+import translator
 
 #history of last three things said
 commentary_history = []
@@ -69,15 +70,42 @@ def update_analytics(player1, player2, data):
     check_neutral(player1, player2, data)
     check_recovery(player1, player2, data)
     on_death_check(player1, player2, data)
-
     #TODO remove passing history as parameter and see if it breaks test (fix if so)
 
-
+def update_analytics_frame_buffer(player1, player2, data):
     #update shield and percentage for next run
     player1.shield_health_last = data[8]
     player1.percentage_last = data[7]
     player2.shield_health_last = data[16]
     player2.percentage_last = data[15]
+
+def character_specific_commentary(player1_character, player2_character, player1, player2, data):
+    #shine spike
+    if(player1_character == "Fox"):
+        if(player2.percentage_last != data[15] and player2.offstage_state == True):
+            if(data[3] in translator.fox_special_action_id):
+                if(data[3] in range(360, 369)):
+                    return "Player 1 lands a shine spike, Player 2 is in a bad position"
+    if(player2_character == "Fox"):
+        if(player1.percentage_last != data[7] and player1.offstage_state == True):
+            if(data[11] in translator.fox_special_action_id):
+                if(data[11] in range(360, 369)):
+                    return "Player 2 lands a shine spike, Player 1 is in a bad position"
+    #Rest
+    if(player1_character == "Jigglypuff"):
+        if(player2.percentage_last != data[15] and player2.offstage_state == False and data[15] != 0):
+            if(data[3] in translator.puff_special_action_id):
+                if(data[3] in range(369, 373)):
+                    return "Player 1 connects a rest, Player 2 wants to die off the side so they can get a punish"
+    if(player2_character == "Jigglypuff"):
+        if(player1.percentage_last != data[7] and player1.offstage_state == False and data[7] != 0):
+            if(data[11] in translator.puff_special_action_id):
+                if(data[11] in range(369, 373)):
+                    return "Player 2 connects a rest, Player 1 wants to die off the side so they can get a punish"
+    #offstage dair (Falco and Marth)
+    #Wobble
+    #Falcon Punch
+    return "none"
 
 def add_history(com_number):
     if(len(commentary_history) < 4):
@@ -384,7 +412,7 @@ def check_shield_pressure(data):
 
 def check_neutral(player1, player2, data):
     #check_neutral - (# punishes by this player/# of punishes total)
-        #punish - starts when player takes damage, ends when player is on stage and doesnt take damage for 120 frames (2 seconds)
+        #punish - starts when player takes damage, ends when player is on stage and doesnt take damage for 80 frames (1.3 second)
     #punish time increment
     if(player1.damaged_state == False and player1.offstage_state == False and player1.punish_state == True):
         player1.punish_time += 1
@@ -392,9 +420,9 @@ def check_neutral(player1, player2, data):
         player2.punish_time += 1
 
     #punish ended check
-    if(player1.punish_time >= 120):
+    if(player1.punish_time >= 80):
         player1.punish_state = False
         player1.punish_time = 0
-    if(player2.punish_time >= 120):
+    if(player2.punish_time >= 80):
         player2.punish_state = False
         player2.punish_time = 0
