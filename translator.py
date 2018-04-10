@@ -31,6 +31,50 @@ marth_matchups = {
     "Captain Falcon" : 0
 }
 
+shiek_matchups = {
+    "Fox" : -1,
+    "Falco" : 0,
+    "Marth" : 1,
+    "Shiek" : 0,
+    "Jigglypuff" : -1,
+    "Peach" : 1,
+    "Ice Climbers" : -1,
+    "Captain Falcon" : 1
+}
+
+jigglypuff_matchups = {
+    "Fox" : -1,
+    "Falco" : 0,
+    "Marth" : 1,
+    "Shiek" : 1,
+    "Jigglypuff" : 0,
+    "Peach" : 1,
+    "Ice Climbers" : 0,
+    "Captain Falcon" : 1
+}
+
+peach_matchups = {
+    "Fox" : -1,
+    "Falco" : 0,
+    "Marth" : -1,
+    "Shiek" : -1,
+    "Jigglypuff" : -1,
+    "Peach" : 0,
+    "Ice Climbers" : 2,
+    "Captain Falcon" : -1
+}
+
+climbers_matchups = {
+    "Fox" : -1,
+    "Falco" : 0,
+    "Marth" : -1,
+    "Shiek" : 1,
+    "Jigglypuff" : 0,
+    "Peach" : -2,
+    "Ice Climbers" : 0,
+    "Captain Falcon" : 0
+}
+
 falcon_matchups = {
     "Fox" : -2,
     "Falco" : -2,
@@ -44,9 +88,13 @@ falcon_matchups = {
 
 matchup_guide = {
     "Fox" : fox_matchups,
-    "Captain Falcon" : falcon_matchups,
     "Falco" : falco_matchups,
-    "Marth" : marth_matchups
+    "Marth" : marth_matchups,
+    "Shiek" : shiek_matchups,
+    "Jigglypuff" : jigglypuff_matchups,
+    "Peach" : peach_matchups,
+    "Ice Climbers" : climbers_matchups,
+    "Captain Falcon" : falcon_matchups
 }
 
 #keys are int values (convert hex to int)

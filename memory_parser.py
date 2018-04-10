@@ -325,6 +325,11 @@ with open(full_filename, "rb") as replay:
     Gui_thread.daemon = True
     Gui_thread.start()
 
+    #intro context
+    print("And the match begins!")
+    print(player1_character, "vs.", player2_character, "on", translator.stage_index[game_start_data.stage])
+    print(get_matchup_score(player1_character, player2_character))
+
     #frame update
     command = ""
     flag = 0

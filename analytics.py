@@ -288,7 +288,19 @@ def get_support_commentary(player1, player2, data):
 def get_matchup_score(player1_character, player2_character):
     #this will eventually return a string discussing the matchup from player 1's perspective
     if(player1_character in translator.matchup_guide and player2_character in translator.matchup_guide):
-        return translator.matchup_guide[player1_character][player2_character]
+        match_score = translator.matchup_guide[player1_character][player2_character]
+        result_string = "This matchup is "
+        if(match_score == 0):
+            result_string += "fairly even."
+        elif(match_score == 1):
+            result_string += ("pretty good for " + player1_character + ".")
+        elif(match_score == 2):
+            result_string += ("really good for " + player1_character + ".")
+        elif(match_score == -1):
+            result_string += ("pretty bad for " + player1_character + ".")
+        elif(match_score == -2):
+            result_string += ("extremely bad for " + player1_character + ".")
+        return result_string
     else:
         return "This is a matchup we don't see often!"
 

@@ -90,11 +90,8 @@ class TestCommentaryWeight(unittest.TestCase):
 
 class TestMatchupChart(unittest.TestCase):
     def test_matchups(self):
-        self.assertEqual(get_matchup_score("Fox", "Fox"), 0)
-        self.assertEqual(get_matchup_score("Fox", "Captain Falcon"), 2)
-        self.assertEqual(get_matchup_score("Captain Falcon", "Falco"), -2)
-        self.assertEqual(get_matchup_score("Falco", "Marth"), 0)
-        self.assertEqual(get_matchup_score("Marth", "Fox"), 0)
+        self.assertEqual(get_matchup_score("Fox", "Fox"), "This matchup is fairly even.")
+        self.assertEqual(get_matchup_score("Captain Falcon", "Falco"), "This matchup is extremely bad for Captain Falcon.")
         self.assertEqual(get_matchup_score("Bowser", "Peach"), "This is a matchup we don't see often!")
 
 if __name__ == '__main__':
