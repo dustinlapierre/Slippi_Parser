@@ -4,14 +4,9 @@ shield pressure (add attack state check)
 hex to int and int to hex conversion moved to another file along with all the parse functions
 move LSTM update to the LSTM file
 
-main commentary:
-    -recovery check
-    -taunt check
 support commentary:
-    -openings per kill (openings/number of kills)
     -average percentage per stock
 character commentary:
     -wobble check
     -knee or falcon punch check
-    -dair check for marth and falco - when opponent offstage
     -peach stitch check, if carrying an item and item is stitch? If not maybe a dsmash check and make a blender joke.

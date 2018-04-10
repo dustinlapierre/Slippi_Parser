@@ -228,19 +228,54 @@ def LSTM_update(data_list):
                 commentary_cooldown = 30
 
         #shield pressure check
-        pressure = check_shield_pressure(data_list)
-        if(pressure[0] == True):
-            print("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.")
-            commentary_cooldown = 60
-        elif(pressure[1] == True):
-            print("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.")
-            commentary_cooldown = 60
+        if(commentary_cooldown <= 0):
+            pressure = check_shield_pressure(data_list)
+            if(pressure[0] == True):
+                print("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.")
+                commentary_cooldown = 60
+            elif(pressure[1] == True):
+                print("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.")
+                commentary_cooldown = 60
 
         #character specific stuff
-        character_com = character_specific_commentary(player1_character, player2_character, player1_analytics, player2_analytics, data_list)
-        if(character_com != "none"):
-            print(character_com)
-            commentary_cooldown = 60
+        if(commentary_cooldown <= 0):
+            character_com = character_specific_commentary(player1_character, player2_character, player1_analytics, player2_analytics, data_list)
+            if(character_com != "none"):
+                print(character_com)
+                commentary_cooldown = 60
+
+        #taunt check
+        if(commentary_cooldown <= 0):
+            if(data_list[3] in range(264, 266)):
+                print("Player 1 feeling themselves with that taunt.")
+                player1_analytics.taunt_timer = 600
+                commentary_cooldown = 120
+            elif(data_list[11] in range(264, 266)):
+                print("Player 2 feeling themselves with that taunt.")
+                player2_analytics.taunt_timer = 600
+                commentary_cooldown = 120
+
+        #taunt to get bodied commentary
+        if(commentary_cooldown <= 0):
+            taunt_com = taunt_bodied_check(player1_analytics, player2_analytics, data_list)
+            if(taunt_com != "none"):
+                print(taunt_com)
+                commentary_cooldown = 120
+
+        #recovery commentary
+        if(commentary_cooldown <= 0):
+            if(player1_analytics.recovery_success != player1_analytics.recovery_success_last):
+                print("Good recovery from Player 1.")
+                commentary_cooldown = 60
+            elif(player1_analytics.recovery_fail != player1_analytics.recovery_fail_last):
+                print("Good edge guard from Player 2.")
+                commentary_cooldown = 60
+            if(player2_analytics.recovery_success != player2_analytics.recovery_success_last):
+                print("Good recovery from Player 2.")
+                commentary_cooldown = 60
+            elif(player2_analytics.recovery_fail != player2_analytics.recovery_fail_last):
+                print("Good edge guard from Player 1.")
+                commentary_cooldown = 60
 
         #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
         if(commentary_cooldown <= -300):
@@ -264,6 +299,8 @@ def print_final_stats():
         print("Recovery %:", (player1_analytics.recovery_success/(player1_analytics.recovery_success+player1_analytics.recovery_fail))*100)
     if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
         print("Neutral Win %:", (player1_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))*100)
+    if(player2_data[7] != 4):
+        print("Openings Per Kill:", (player1_analytics.punish_amount/(4 - player2_data[7])))
 
     print("Player 2 Stats ----------")
     print("Frames in stage control:", player2_analytics.stage_control)
@@ -279,6 +316,8 @@ def print_final_stats():
         print("Recovery %:", (player2_analytics.recovery_success/(player2_analytics.recovery_success+player2_analytics.recovery_fail))*100)
     if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
         print("Neutral Win %:", (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))*100)
+    if(player1_data[7] != 4):
+        print("Openings Per Kill:", (player2_analytics.punish_amount/(4 - player1_data[7])))
 
 #data holders
 #variable values will be updated each time one of these

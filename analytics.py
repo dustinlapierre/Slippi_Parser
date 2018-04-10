@@ -27,12 +27,16 @@ class CommentaryNumber(Enum):
     PUNISH = 4
     OFFSTAGE = 5
     ABOVE = 6
+    OPENINGS = 7
 
 class player_analytics:
     #shield health last frame (for detecting blocks)
     shield_health_last = -1.0
     #percentage last frame (for detecting hits)
     percentage_last = 0.0
+    #recovery stuff last frame (for detecting recoveries in main commentary)
+    recovery_success_last = 0
+    recovery_fail_last = 0
     #number of frames in stage control
     stage_control = 0
     #number of frames above opponent
@@ -44,15 +48,14 @@ class player_analytics:
     #number of sucessful/failed recoveries
     recovery_success = 0
     recovery_fail = 0
-    #number of sucessful/failed edge guards
-    edge_success = 0
-    edge_fail = 0
     #number of sucessful/failed blocks
     block_success = 0
     block_failed = 0
     #number of punishes this player gets
     punish_amount = 0
     punish_time = 0
+    #set to 600 when a player taunts for taunt to get bodied check
+    taunt_timer = 0
     #flags
     punish_state = False
     damaged_state = False
@@ -76,8 +79,12 @@ def update_analytics_frame_buffer(player1, player2, data):
     #update shield and percentage for next run
     player1.shield_health_last = data[8]
     player1.percentage_last = data[7]
+    player1.recovery_success_last = player1.recovery_success
+    player1.recovery_fail_last = player1.recovery_fail
     player2.shield_health_last = data[16]
     player2.percentage_last = data[15]
+    player2.recovery_success_last = player2.recovery_success
+    player2.recovery_fail_last = player2.recovery_fail
 
 def character_specific_commentary(player1_character, player2_character, player1, player2, data):
     #shine spike
@@ -102,6 +109,17 @@ def character_specific_commentary(player1_character, player2_character, player1,
             if(data[11] in translator.puff_special_action_id):
                 if(data[11] in range(369, 373)):
                     return "Player 2 connects a rest, Player 1 wants to die off the side so they can get a punish"
+    #Falco/Marth Dair
+    if(player1_character == "Falco" or player1_character == "Marth"):
+        if(player2.percentage_last != data[15] and player2.offstage_state == True):
+            if(data[3] in translator.action_state_id):
+                if(data[3] == 69):
+                    return "Player 1 with an offstage dair, Player 2 is in a bad position"
+    if(player2_character == "Falco" or player2_character == "Marth"):
+        if(player1.percentage_last != data[7] and player1.offstage_state == True):
+            if(data[11] in translator.action_state_id):
+                if(data[11] == 69):
+                    return "Player 2 with an offstage dair, Player 1 is in a bad position"
     return "none"
 
 def add_history(com_number):
@@ -162,6 +180,15 @@ def select_commentary_by_weight(player1, player2, history):
     if(CommentaryNumber.ABOVE in history):
         weight = weight/(history.count(CommentaryNumber.ABOVE)+1)
     weights.append(weight)
+    #weight openings per kill
+    if(player2.block_failed != 0 and player1.block_failed != 0):
+        weight = abs((player1.punish_amount/player2.block_failed) - (player2.punish_amount/player1.block_failed))
+        weight = flatten(weight, 0, 15)
+    else:
+        weight = 0
+    if(CommentaryNumber.OPENINGS in history):
+        weight = weight/(history.count(CommentaryNumber.OPENINGS)+1)
+    weights.append(weight)
 
     return CommentaryNumber(weights.index(max(weights)))
 
@@ -177,11 +204,11 @@ def get_support_commentary(player1, player2, data):
             p2_stage = 0
 
         if(p1_stage > p2_stage):
-            return "Player 1 has had stage control for a majority of the game"
+            return "Player 1 has had stage control for a majority of the game."
         elif(p2_stage > p1_stage):
-            return "Player 2 has had stage control for a majority of the game"
+            return "Player 2 has had stage control for a majority of the game."
         else:
-            return "Stage control has been hotly contested this match"
+            return "Stage control has been hotly contested this match."
 
     elif(choice == CommentaryNumber.BLOCK_SUCCESS):
         add_history(CommentaryNumber.BLOCK_SUCCESS)
@@ -200,11 +227,11 @@ def get_support_commentary(player1, player2, data):
             return "Player 1 is finding a lot of holes in Player 2's defense.\nPlayer 2's block rate is " + str(p2_block * 100) + "%"
         else:
             if(data[9] < data[17]):
-                return "Player 2's strong offense is helping them hold the lead"
+                return "Player 2's strong offense is helping them hold the lead."
             elif(data[17] < data[9]):
-                return "Player 1's strong offense is helping them hold the lead"
+                return "Player 1's strong offense is helping them hold the lead."
             else:
-                return "I'm seeing really strong defense from both players"
+                return "I'm seeing really strong defense from both players."
 
     elif(choice == CommentaryNumber.NEUTRAL_WINS):
         add_history(CommentaryNumber.NEUTRAL_WINS)
@@ -215,37 +242,37 @@ def get_support_commentary(player1, player2, data):
             if(player1_nooch > 0.60):
                 output = "Player 1 is really dominating in neutral"
                 if(data[9] < data[17]):
-                    output += ", but Player 2 seems to be getting more off their neutral wins"
+                    output += ", but Player 2 seems to be getting more off their neutral wins."
                 return output
             elif(player2_nooch > 0.60):
                 output = "Player 2 is really dominating in neutral"
                 if(data[17] < data[9]):
-                    output += ", but Player 1 seems to be getting more off their neutral wins"
+                    output += ", but Player 1 seems to be getting more off their neutral wins."
                 return output
             else:
                 output = "Both players are going about even in neutral so far"
                 if(data[9] < data[17]):
-                    output += ", but Player 2 is getting more off their neutral wins"
+                    output += ", but Player 2 is getting more off their neutral wins."
                 elif(data[17] < data[9]):
-                    output += ", but Player 1 is getting more off their neutral wins"
+                    output += ", but Player 1 is getting more off their neutral wins."
                 return output
         else:
-            return "Neither player has been able to score a single neutral win"
+            return "Neither player has been able to score a single neutral win."
 
     elif(choice == CommentaryNumber.RECOVERY):
         add_history(CommentaryNumber.RECOVERY)
         if(player1.recovery_success > player2.recovery_success):
             if(data[9] >= data[17]):
-                return "Player 1's recovery has been solid this game"
+                return "Player 1's recovery has been solid this game."
             if(data[9] < data[17]):
-                return "Player 1's recovery has been good, but it just isn't enough to stay ahead"
+                return "Player 1's recovery has been good, but it just isn't enough to stay ahead."
         elif(player2.recovery_success > player1.recovery_success):
             if(data[17] >= data[9]):
-                return "Player 2's recovery has been solid this game"
+                return "Player 2's recovery has been solid this game."
             if(data[17] < data[9]):
-                return "Player 2's recovery has been good, but it just isn't enough to stay ahead"
+                return "Player 2's recovery has been good, but it just isn't enough to stay ahead."
         else:
-            return "Both player's recovery is looking good"
+            return "Both player's recovery is looking good."
 
     elif(choice == CommentaryNumber.PUNISH):
         add_history(CommentaryNumber.PUNISH)
@@ -255,35 +282,49 @@ def get_support_commentary(player1, player2, data):
         else:
             p1_punish, p2_punish = 0, 0
         if(p1_punish > p2_punish):
-            return "Player 1 has been getting a lot more off their openings"
+            return "Player 1 has been getting a lot more off their openings."
         elif(p1_punish < p2_punish):
-            return "Player 2 has been getting a lot more off their openings"
+            return "Player 2 has been getting a lot more off their openings."
         else:
-            return "The punish game from both players has been close to even"
+            return "The punish game from both players has been close to even."
 
     elif(choice == CommentaryNumber.OFFSTAGE):
         add_history(CommentaryNumber.OFFSTAGE)
         if(player1.time_offstage > player2.time_offstage):
-            return "Player 2 isn't allowing Player 1 to get their footing on stage"
+            return "Player 2 isn't allowing Player 1 to get their footing on stage."
         elif(player2.time_offstage > player1.time_offstage):
-            return "Player 1 isn't allowing Player 2 to get their footing on stage"
+            return "Player 1 isn't allowing Player 2 to get their footing on stage."
         else:
-            return "Hard to say which player has spent more time offstage"
+            return "Hard to say which player has spent more time offstage."
 
     elif(choice == CommentaryNumber.ABOVE):
         add_history(CommentaryNumber.ABOVE)
         if(player1.above_opponent > player2.above_opponent):
             if(data[9] < data[17]):
-                return "Player 2 has been doing well juggling Player 1 in the air"
+                return "Player 2 has been doing well juggling Player 1 in the air."
             elif(data[9] >= data[17]):
-                return "Player 1 has been playing the vertical advantage and attacking from above"
-        elif(player1.above_opponent > player2.above_opponent):
+                return "Player 1 has been playing the vertical advantage and attacking from above."
+        elif(player2.above_opponent > player1.above_opponent):
             if(data[17] < data[9]):
-                return "Player 1 has been doing well juggling Player 2 in the air"
+                return "Player 1 has been doing well juggling Player 2 in the air."
             elif(data[17] >= data[9]):
-                return "Player 2 has been playing the vertical advantage and attacking from above"
+                return "Player 2 has been playing the vertical advantage and attacking from above."
         else:
-            return "The players are staying grounded"
+            return "The players are staying grounded."
+
+    elif(choice == CommentaryNumber.OPENINGS):
+        add_history(CommentaryNumber.OPENINGS)
+        if(data[9] != 4 and data[17] != 4):
+            p1_openings = (player1.punish_amount/(4 - data[17]))
+            p2_openings = (player2.punish_amount/(4 - data[9]))
+        else:
+            p1_openings, p2_openings = 0, 0
+        if(p1_openings > p2_openings):
+            return "Player 1 has been extremely efficient with their punishes."
+        elif(p1_openings < p2_openings):
+            return "Player 2 has been extremely efficient with their punishes."
+        else:
+            return "Both players are punishing equally, it's not clear which way this is gonna go."
 
 def get_matchup_score(player1_character, player2_character):
     #this will eventually return a string discussing the matchup from player 1's perspective
@@ -364,25 +405,38 @@ def update_flags(player1, player2, data):
 
     #offstage check
     edge = ledge_position[stage_index[data[0]]]
-    #offstage = x > edge_x+characterlen or y < -10 (under stage)
-    if((abs(data[4]) > abs(edge[0])) or (data[5] < (edge[1] - 10))):
+    if(((abs(data[4]) > abs(edge[0])) or (data[5] < (edge[1] - 10)))):
         player1.offstage_state = True
         player1.time_offstage += 1
     else:
         player1.offstage_state = False
+        player1.knocked_offstage = False
 
-    if((abs(data[12]) > abs(edge[0])) or (data[13] < (edge[1] - 10))):
+    if(((abs(data[12]) > abs(edge[0])) or (data[13] < (edge[1] - 10)))):
         player2.offstage_state = True
         player2.time_offstage += 1
     else:
         player2.offstage_state = False
+        player2.knocked_offstage = False
+
+    #knocked offstage
+    if(player1.offstage_state == True and player1.damaged_state == True):
+        player1.knocked_offstage = True
+    if(player2.offstage_state == True and player2.damaged_state == True):
+        player2.knocked_offstage = True
+
+    #taunt to get bodied timer
+    if(player1.taunt_timer > 0):
+        player1.taunt_timer -= 1
+    if(player2.taunt_timer > 0):
+        player2.taunt_timer -= 1
 
 def check_recovery(player1, player2, data):
     #recovery check
-    if(player1.offstage_state == True and player1.damaged_state == False):
+    if(player1.knocked_offstage == True and player1.damaged_state == False):
         if(data[3] not in range(0, 13)):
             player1.recovery_state = True
-    if(player2.offstage_state == True and player2.damaged_state == False):
+    if(player2.knocked_offstage == True and player2.damaged_state == False):
         if(data[11] not in range(0, 13)):
             player2.recovery_state = True
 
@@ -410,6 +464,14 @@ def on_death_check(player1, player2, data):
         if(player2.recovery_state == True):
             player2.recovery_state = False
             player2.recovery_success += 1
+
+def taunt_bodied_check(player1, player2, data):
+    if(data[3] in range(0, 13) and player1.taunt_timer > 0):
+        return "Player 1 with the taunt to get bodied true combo!"
+    elif(data[11] in range(0, 13) and player2.taunt_timer > 0):
+        return "Player 2 with the taunt to get bodied true combo!"
+    else:
+        return "none"
 
 def check_shield_pressure(data):
     #returns boolean tuple, (player1, player2)
