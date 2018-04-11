@@ -4,6 +4,8 @@ shield pressure (add attack state check)
 hex to int and int to hex conversion moved to another file along with all the parse functions
 move LSTM update to the LSTM file
 
+main commentary:
+    -crossups? (LSTM potential)
 support commentary:
     -average percentage per stock
 character commentary:
