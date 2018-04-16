@@ -7,6 +7,8 @@ import time
 from ast import literal_eval
 import struct
 
+#from multiprocessing import Process,Queue,Pipe
+
 import LSTM
 import translator
 import structures
@@ -335,6 +337,7 @@ player2_data = []
 LSTM_batch1 = []
 LSTM_batch2 = []
 commentary_cooldown = 120
+connection = Queue()
 
 #live parse the newly created file
 with open(full_filename, "rb") as replay:
@@ -356,13 +359,20 @@ with open(full_filename, "rb") as replay:
     player2_character = translator.external_character_id[game_start_data.character_ID_port2]
 
     #threading
-    connection = Queue()
-    Gui_thread = threading.Thread(target=GuiThreadStart, args=
-    (player1_character,
-    player2_character,
-    translator.stage_index[game_start_data.stage], connection))
-    Gui_thread.daemon = True
-    Gui_thread.start()
+    #connection = Queue()
+    #Gui_thread = threading.Thread(target=GuiThreadStart, args=
+    #(player1_character,
+    #player2_character,
+    #translator.stage_index[game_start_data.stage], connection))
+    #Gui_thread.daemon = True
+    #Gui_thread.start()
+    #gui_thread = threading.Thread(target=GuiThreadStart, args=(player1_character, player2_character, translator.stage_index[game_start_data.stage], connection))
+    #stock_thread = threading.Thread(target=getStocks)
+    #gui_thread.daemon = True
+    #gui_thread.start()
+    #stock_thread.start()
+
+    GuiThreadStart(player1_character, player2_character, translator.stage_index[game_start_data.stage], connection)
 
     #intro context
     print("And the match begins!")
@@ -397,6 +407,7 @@ with open(full_filename, "rb") as replay:
                 player1_data = post_frame_as_list()
             else:
                 player2_data = post_frame_as_list()
+
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
                 if(connection.empty() and stocks != [player1_data[7], player2_data[7]]):
@@ -416,5 +427,6 @@ with open(full_filename, "rb") as replay:
                 print("No Contest!")
             print_final_stats()
             flag = 1
+
 
     replay.close()
