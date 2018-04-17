@@ -1,9 +1,6 @@
 structures for player data to clean up code and remove magic numbers
 shield pressure (add attack state check)
 
-hex to int and int to hex conversion moved to another file along with all the parse functions
-move LSTM update to the LSTM file
-
 main commentary:
     -crossups? (LSTM potential)
 support commentary:
@@ -12,3 +9,13 @@ character commentary:
     -wobble check
     -knee or falcon punch check
     -peach stitch check, if carrying an item and item is stitch? If not maybe a dsmash check and make a blender joke.
+
+REFACTORING:
+major:
+    *structures for player data to clean up code and remove magic numbers
+    *make the main structures global and remove them as parameters in everything
+
+minor:
+    *move parse functions into structures file
+    *hex to int and int to hex conversion moved to another file along with all the parse functions
+    *move LSTM update to the LSTM file

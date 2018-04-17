@@ -11,6 +11,7 @@ import LSTM
 import translator
 import structures
 from analytics import *
+from commentary_statements import *
 
 import sys
 sys.path.insert(0, 'GUI/')
@@ -28,7 +29,6 @@ ACTIONS = {
 }
 # Thanks to Claudio Grondi for the correct set of numbers
 FILE_LIST_DIRECTORY = 0x0001
-clear = lambda: os.system('cls')
 
 path_to_watch = "."
 hDir = win32file.CreateFile (
@@ -197,6 +197,17 @@ def post_frame_as_list():
     data.append(post_frame_data.stocks_remaining)
     return data
 
+def update_player_data(player_data):
+    player_data.player_index = post_frame_data.player_index
+    player_data.action_state = post_frame_data.action_state
+    player_data.x_pos = post_frame_data.x_pos
+    player_data.y_pos = post_frame_data.y_pos
+    player_data.facing_direction = post_frame_data.facing_direction
+    player_data.percent = post_frame_data.percent
+    player_data.shield_size = post_frame_data.shield_size
+    player_data.stocks_remaining = post_frame_data.stocks_remaining
+
+
 def LSTM_update(data_list):
     global commentary_cooldown
     commentary_cooldown -= 1
@@ -284,62 +295,17 @@ def LSTM_update(data_list):
 
     update_analytics_frame_buffer(player1_analytics, player2_analytics, data_list)
 
-def print_final_stats():
-    print("Player 1 Stats ----------")
-    print("Frames in stage control:", player1_analytics.stage_control)
-    print("Frames above opponent:", player1_analytics.above_opponent)
-    print("Frames offstage:", player1_analytics.time_offstage)
-    print("Frames shielding:", player1_analytics.time_shielded)
-    print("Successful blocks:", player1_analytics.block_success)
-    print("Times hit:", player1_analytics.block_failed)
-    print("Punishes:", player1_analytics.punish_amount)
-    if(player2_analytics.block_failed != 0):
-        print("Hits per punish:", (player2_analytics.block_failed/player1_analytics.punish_amount))
-    if(player1_analytics.recovery_success != 0):
-        print("Recovery %:", (player1_analytics.recovery_success/(player1_analytics.recovery_success+player1_analytics.recovery_fail))*100)
-    if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
-        print("Neutral Win %:", (player1_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))*100)
-    if(player2_data[7] != 4):
-        print("Openings Per Kill:", (player1_analytics.punish_amount/(4 - player2_data[7])))
-
-    print("Player 2 Stats ----------")
-    print("Frames in stage control:", player2_analytics.stage_control)
-    print("Frames above opponent:", player2_analytics.above_opponent)
-    print("Frames offstage:", player2_analytics.time_offstage)
-    print("Frames shielding:", player2_analytics.time_shielded)
-    print("Successful blocks:", player2_analytics.block_success)
-    print("Times hit:", player2_analytics.block_failed)
-    print("Punishes:", player2_analytics.punish_amount)
-    if(player1_analytics.block_failed != 0):
-        print("Hits per punish:", (player1_analytics.block_failed/player2_analytics.punish_amount))
-    if(player2_analytics.recovery_success != 0):
-        print("Recovery %:", (player2_analytics.recovery_success/(player2_analytics.recovery_success+player2_analytics.recovery_fail))*100)
-    if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
-        print("Neutral Win %:", (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))*100)
-    if(player1_data[7] != 4):
-        print("Openings Per Kill:", (player2_analytics.punish_amount/(4 - player1_data[7])))
-
 def print_to_gui(text):
     if(commentary_queue.empty()):
         commentary_queue.put(text)
         connection.join()
 
-#data holders
-#variable values will be updated each time one of these
-#commands are encountered in the replay file
-game_start_data = structures.game_start_event()
-pre_frame_data = structures.pre_frame_event()
-post_frame_data = structures.post_frame_event()
-game_end_data = structures.game_end_event()
-player1_analytics = player_analytics()
-player2_analytics = player_analytics()
-player1_character = ""
-player2_character = ""
-player1_data = []
-player2_data = []
+#shared mem and data holders
 LSTM_batch1 = []
 LSTM_batch2 = []
 commentary_cooldown = 120
+connection = Queue()
+commentary_queue = Queue()
 
 #live parse the newly created file
 with open(full_filename, "rb") as replay:
@@ -361,8 +327,6 @@ with open(full_filename, "rb") as replay:
     player2_character = translator.external_character_id[game_start_data.character_ID_port2]
 
     #threading
-    connection = Queue()
-    commentary_queue = Queue()
     Gui_thread = threading.Thread(target=GuiThreadStart, args=
     (player1_character,
     player2_character,
@@ -393,29 +357,31 @@ with open(full_filename, "rb") as replay:
                 break;
 
         #parse command
-        if(command == structures.PRE_FRAME_UPDATE):
+        if(command == PRE_FRAME_UPDATE):
             data = read_frame(replay, 58)
             parse_pre_frame(data)
-        elif(command == structures.POST_FRAME_UPDATE):
+        elif(command == POST_FRAME_UPDATE):
             data = read_frame(replay, 33)
             parse_post_frame(data)
             #copy data into player container
             if(post_frame_data.player_index == 0):
-                player1_data = post_frame_as_list()
+                player1_data_dep = post_frame_as_list()
+                update_player_data(player1_data)
             else:
-                player2_data = post_frame_as_list()
+                player2_data_dep = post_frame_as_list()
+                update_player_data(player2_data)
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
-                if(connection.empty() and stocks != [player1_data[7], player2_data[7]]):
-                    stocks = [player1_data[7], player2_data[7]]
-                    connection.put([player1_data[7], player2_data[7]])
+                if(connection.empty() and stocks != [player1_data.stocks_remaining, player2_data.stocks_remaining]):
+                    stocks = [player1_data.stocks_remaining, player2_data.stocks_remaining]
+                    connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
                     connection.join()
-                LSTM_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data + player2_data)
-        elif(command == structures.GAME_END):
+                LSTM_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data_dep + player2_data_dep)
+        elif(command == GAME_END):
             data = read_frame(replay, 1)
             game_end_data.game_end_method = hex_to_int([data[0]])
             if(game_end_data.game_end_method == 3):
-                if(player1_data[7] == 0):
+                if(player1_data.stocks_remaining == 0):
                     print("Player 2 takes the game!")
                 else:
                     print("Player 1 takes the game!")
