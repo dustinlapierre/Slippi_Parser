@@ -16,7 +16,7 @@ from analytics import *
 
 import sys
 sys.path.insert(0, 'GUI/')
-from main import GuiThreadStart
+from gui import GuiThreadStart
 
 #Windows filesystem watcher code written by Tim Golden
 #Parser written by Dustin Lapierre
