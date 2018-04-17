@@ -95,7 +95,6 @@ player1_analytics = player_analytics()
 player2_analytics = player_analytics()
 player1_character = ""
 player2_character = ""
-#these need structures
 player1_data = player_data()
 player2_data = player_data()
 

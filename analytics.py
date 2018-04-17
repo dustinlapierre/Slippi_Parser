@@ -120,7 +120,7 @@ def character_specific_commentary(player1_character, player2_character, player1,
             if(data[11] in translator.action_state_id):
                 if(data[11] == 69):
                     return "Player 2 with an offstage dair, Player 1 is in a bad position"
-    return "none"
+    return None
 
 def add_history(com_number):
     if(len(commentary_history) < 4):
@@ -470,8 +470,7 @@ def taunt_bodied_check(player1, player2, data):
         return "Player 1 with the taunt to get bodied true combo!"
     elif(data[11] in range(0, 13) and player2.taunt_timer > 0):
         return "Player 2 with the taunt to get bodied true combo!"
-    else:
-        return "none"
+    return None
 
 def check_shield_pressure(data):
     #returns boolean tuple, (player1, player2)

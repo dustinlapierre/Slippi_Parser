@@ -247,47 +247,30 @@ def LSTM_update(data_list):
             elif(pressure[1] == True):
                 print("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.")
                 commentary_cooldown = 60
-
         #character specific stuff
         if(commentary_cooldown <= 0):
             character_com = character_specific_commentary(player1_character, player2_character, player1_analytics, player2_analytics, data_list)
-            if(character_com != "none"):
+            if(character_com != None):
                 print(character_com)
                 commentary_cooldown = 60
-
         #taunt check
         if(commentary_cooldown <= 0):
-            if(data_list[3] in range(264, 266)):
-                print("Player 1 feeling themselves with that taunt.")
-                player1_analytics.taunt_timer = 600
-                commentary_cooldown = 120
-            elif(data_list[11] in range(264, 266)):
-                print("Player 2 feeling themselves with that taunt.")
-                player2_analytics.taunt_timer = 600
-                commentary_cooldown = 120
-
-        #taunt to get bodied commentary
-        if(commentary_cooldown <= 0):
-            taunt_com = taunt_bodied_check(player1_analytics, player2_analytics, data_list)
-            if(taunt_com != "none"):
+            taunt_com = taunt_comment()
+            if(taunt_com != None):
                 print(taunt_com)
                 commentary_cooldown = 120
-
-        #recovery commentary
+        #taunt to get bodied commentary
         if(commentary_cooldown <= 0):
-            if(player1_analytics.recovery_success != player1_analytics.recovery_success_last):
-                print("Good recovery from Player 1.")
+            tauntb_com = taunt_bodied_check(player1_analytics, player2_analytics, data_list)
+            if(tauntb_com != None):
+                print(tauntb_com)
+                commentary_cooldown = 120
+        #recovery check
+        if(commentary_cooldown <= 0):
+            recov_com = recovery_comment()
+            if(recov_com != None):
+                print(recov_com)
                 commentary_cooldown = 60
-            elif(player1_analytics.recovery_fail != player1_analytics.recovery_fail_last):
-                print("Good edge guard from Player 2.")
-                commentary_cooldown = 60
-            if(player2_analytics.recovery_success != player2_analytics.recovery_success_last):
-                print("Good recovery from Player 2.")
-                commentary_cooldown = 60
-            elif(player2_analytics.recovery_fail != player2_analytics.recovery_fail_last):
-                print("Good edge guard from Player 1.")
-                commentary_cooldown = 60
-
         #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
         if(commentary_cooldown <= -300):
             print(get_support_commentary(player1_analytics, player2_analytics, data_list))

@@ -34,3 +34,23 @@ def print_final_stats():
         print("Neutral Win %:", (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))*100)
     if(player1_data.stocks_remaining != 4):
         print("Openings Per Kill:", (player2_analytics.punish_amount/(4 - player1_data.stocks_remaining)))
+
+def recovery_comment():
+    if(player1_analytics.recovery_success != player1_analytics.recovery_success_last):
+        return "Good recovery from Player 1."
+    elif(player1_analytics.recovery_fail != player1_analytics.recovery_fail_last):
+        return "Good edge guard from Player 2."
+    if(player2_analytics.recovery_success != player2_analytics.recovery_success_last):
+        return "Good recovery from Player 2."
+    elif(player2_analytics.recovery_fail != player2_analytics.recovery_fail_last):
+        return "Good edge guard from Player 1."
+    return None
+
+def taunt_comment():
+    if(player1_data.action_state in range(264, 266)):
+        return "Player 1 feeling themselves with that taunt."
+        player1_analytics.taunt_timer = 600
+    elif(player2_data.action_state in range(264, 266)):
+        return "Player 2 feeling themselves with that taunt."
+        player2_analytics.taunt_timer = 600
+    return None
