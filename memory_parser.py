@@ -319,6 +319,11 @@ def print_final_stats():
     if(player1_data[7] != 4):
         print("Openings Per Kill:", (player2_analytics.punish_amount/(4 - player1_data[7])))
 
+def print_to_gui(text):
+    if(commentary_queue.empty()):
+        commentary_queue.put(text)
+        connection.join()
+
 #data holders
 #variable values will be updated each time one of these
 #commands are encountered in the replay file
@@ -357,10 +362,11 @@ with open(full_filename, "rb") as replay:
 
     #threading
     connection = Queue()
+    commentary_queue = Queue()
     Gui_thread = threading.Thread(target=GuiThreadStart, args=
     (player1_character,
     player2_character,
-    translator.stage_index[game_start_data.stage], connection))
+    translator.stage_index[game_start_data.stage], connection, commentary_queue))
     Gui_thread.daemon = True
     Gui_thread.start()
 
@@ -368,6 +374,7 @@ with open(full_filename, "rb") as replay:
     print("And the match begins!")
     print(player1_character, "vs.", player2_character, "on", translator.stage_index[game_start_data.stage])
     print(get_matchup_score(player1_character, player2_character))
+    print_to_gui(get_matchup_score(player1_character, player2_character))
 
     #frame update
     command = ""
