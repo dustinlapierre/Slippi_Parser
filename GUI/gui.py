@@ -9,9 +9,10 @@ player1_character = "None"
 player2_character = "None"
 stage = "None"
 shared_queue = None
+shared_commentary_queue = None
 player1_stocks = 0
 player2_stocks = 0
-commentary = "" #dont worry about this yet
+commentary = []
 
 class MainView(FloatLayout):
     stage_label = StringProperty()
@@ -20,11 +21,12 @@ class MainView(FloatLayout):
     p1_stocks = StringProperty()
     p2_stocks = StringProperty()
 
+    comm = StringProperty() #commentary
     content = StringProperty()
     lines = 0
     contentList = []
     outputString = ""
-    lastLine = ""    
+    lastLine = ""
 
     stage_image = StringProperty()
 
@@ -93,8 +95,14 @@ class MainView(FloatLayout):
         self.p2_stocks = str(player2_stocks)
 
         #---------------CONSOLE----------------------------------------------
-
-        """
+        if(not shared_commentary_queue.empty()):
+            commentary.append(shared_commentary_queue.get())#should write a function that limits the size of this
+            shared_commentary_queue.task_done()
+        if(len(commentary) != 0):
+            self.comm = commentary[0] #just print out the first one for testing
+        else:
+            self.comm = "Nothing yet!"
+        '''
         self.contentList = []
         newLastLine = ""
         with open("GUI/input.txt", "r+") as f:
@@ -115,10 +123,7 @@ class MainView(FloatLayout):
                 self.label.text = ""
                 self.content = self.outputString
                 self.label.text = self.content
-
-        #print("UPDATE 2")
-        """
-
+        '''
         #---------------STOCKS-----------------------------------------------
 
         if self.p1_stocks == None or self.p2_stocks == None:
@@ -147,7 +152,7 @@ class MainView(FloatLayout):
             self.remove_widget(self.ids.img_player_2_stock_1)
             self.remove_widget(self.ids.img_player_2_stock_2)
             self.remove_widget(self.ids.img_player_2_stock_3)
-        
+
 
     def update_rect(self, *args):
         self.rect.pos = self.pos
@@ -158,18 +163,20 @@ class GuiApp(App):
         main = MainView()
 
         Clock.schedule_interval(main.update, 0.05)
-        
+
         return main
 
-def GuiThreadStart(character1, character2, current_stage, connection):
+def GuiThreadStart(character1, character2, current_stage, connection, commentary_queue):
     global player1_character
     global player2_character
     global stage
     global shared_queue
+    global shared_commentary_queue
 
     player1_character = character1
     player2_character = character2
     stage = current_stage
     shared_queue = connection
+    shared_commentary_queue = commentary_queue
 
     GuiApp().run()
