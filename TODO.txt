@@ -12,6 +12,7 @@ character commentary:
 
 REFACTORING:
 major:
+    *update analytics.py file with all the new changes then remove parameter passing to those functions
     *structures for player data to clean up code and remove magic numbers
     *make the main structures global and remove them as parameters in everything
 
@@ -19,3 +20,18 @@ minor:
     *move parse functions into structures file
     *hex to int and int to hex conversion moved to another file along with all the parse functions
     *move LSTM update to the LSTM file
+
+
+refactors done:
+feature envy from structures
+
+code dupe from main:
+data = []
+while(len(data) < 320):
+    position = replay.tell()
+    byte = replay.read(1)
+    if(not byte):
+        time.sleep(1/120)
+        replay.seek(position)
+    else:
+        data.append(hex(ord(byte)))
