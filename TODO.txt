@@ -24,6 +24,7 @@ minor:
 
 refactors done:
 feature envy from structures
+extract method from main (file detection)
 
 code dupe from main:
 data = []
