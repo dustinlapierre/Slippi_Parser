@@ -4,7 +4,7 @@ import time
 
 import LSTM
 import translator
-import structures
+from structures import *
 from analytics import *
 from commentary_statements import *
 from parse_functions import *
@@ -15,8 +15,6 @@ sys.path.insert(0, 'GUI/')
 from gui import GuiThreadStart
 
 #Written by Dustin Lapierre copyright 04/18/2018
-
-full_filename = watch_for_create(".")
 
 def post_frame_as_list():
     data = []
@@ -117,6 +115,7 @@ def print_to_gui(text):
         connection.join()
 
 #shared mem and data holders
+full_filename = watch_for_create(".")
 LSTM_batch1 = []
 LSTM_batch2 = []
 commentary_cooldown = 120
