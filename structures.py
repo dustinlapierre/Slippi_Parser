@@ -1,5 +1,3 @@
-from analytics import player_analytics
-
 #command bytes
 EVENT_PAYLOADS = "0x35"
 GAME_START = "0x36"
@@ -73,6 +71,39 @@ class game_end_event:
     command_byte = GAME_END
     game_end_method = 0
 
+class player_analytics:
+    #shield health last frame (for detecting blocks)
+    shield_health_last = -1.0
+    #percentage last frame (for detecting hits)
+    percentage_last = 0.0
+    #recovery stuff last frame (for detecting recoveries in main commentary)
+    recovery_success_last = 0
+    recovery_fail_last = 0
+    #number of frames in stage control
+    stage_control = 0
+    #number of frames above opponent
+    above_opponent = 0
+    #number of frames spent in shield
+    time_shielded = 0
+    #number of frames offstage
+    time_offstage = 0
+    #number of sucessful/failed recoveries
+    recovery_success = 0
+    recovery_fail = 0
+    #number of sucessful/failed blocks
+    block_success = 0
+    block_failed = 0
+    #number of punishes this player gets
+    punish_amount = 0
+    punish_time = 0
+    #set to 600 when a player taunts for taunt to get bodied check
+    taunt_timer = 0
+    #flags
+    punish_state = False
+    damaged_state = False
+    offstage_state = False
+    recovery_state = False
+
 class player_data:
     player_index = 0
     action_state = 0
@@ -82,6 +113,12 @@ class player_data:
     percent = 0.0
     shield_size = 0.0
     stocks_remaining = 0
+
+class match_info:
+    player1_character = ""
+    player2_character = ""
+    stage = ""
+
 
 #ALL GLOBAL DATA HOLDERS -------------------
 #data holders
@@ -93,8 +130,7 @@ post_frame_data = post_frame_event()
 game_end_data = game_end_event()
 player1_analytics = player_analytics()
 player2_analytics = player_analytics()
-player1_character = ""
-player2_character = ""
+match = match_info()
 player1_data = player_data()
 player2_data = player_data()
 

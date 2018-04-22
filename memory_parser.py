@@ -43,7 +43,7 @@ def LSTM_update(data_list):
     global commentary_cooldown
     commentary_cooldown -= 1
     #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
-    update_analytics(player1_analytics, player2_analytics, data_list)
+    update_analytics()
 
     #doesn't speak when on cooldown
     #gives people time to read or text to speach to talk
@@ -71,7 +71,7 @@ def LSTM_update(data_list):
 
         #shield pressure check
         if(commentary_cooldown <= 0):
-            pressure = check_shield_pressure(data_list)
+            pressure = check_shield_pressure()
             if(pressure[0] == True):
                 print("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.")
                 commentary_cooldown = 60
@@ -80,7 +80,7 @@ def LSTM_update(data_list):
                 commentary_cooldown = 60
         #character specific stuff
         if(commentary_cooldown <= 0):
-            character_com = character_specific_commentary(player1_character, player2_character, player1_analytics, player2_analytics, data_list)
+            character_com = character_specific_commentary()
             if(character_com != None):
                 print(character_com)
                 commentary_cooldown = 60
@@ -92,7 +92,7 @@ def LSTM_update(data_list):
                 commentary_cooldown = 120
         #taunt to get bodied commentary
         if(commentary_cooldown <= 0):
-            tauntb_com = taunt_bodied_check(player1_analytics, player2_analytics, data_list)
+            tauntb_com = taunt_bodied_check()
             if(tauntb_com != None):
                 print(tauntb_com)
                 commentary_cooldown = 120
@@ -104,10 +104,10 @@ def LSTM_update(data_list):
                 commentary_cooldown = 60
         #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
         if(commentary_cooldown <= -300):
-            print(get_support_commentary(player1_analytics, player2_analytics, data_list))
+            print(get_support_commentary(data_list[1]))
             commentary_cooldown = 60
 
-    update_analytics_frame_buffer(player1_analytics, player2_analytics, data_list)
+    update_analytics_frame_buffer()
 
 def print_to_gui(text):
     if(commentary_queue.empty()):
@@ -130,22 +130,23 @@ with open(full_filename, "rb") as replay:
     data = read_frame(replay, 320)
     parse_game_start(data)
 
-    player1_character = translator.external_character_id[game_start_data.character_ID_port1]
-    player2_character = translator.external_character_id[game_start_data.character_ID_port2]
+    match.player1_character = translator.external_character_id[game_start_data.character_ID_port1]
+    match.player2_character = translator.external_character_id[game_start_data.character_ID_port2]
+    match.current_stage = translator.stage_index[game_start_data.stage]
 
     #GUI threading
     Gui_thread = threading.Thread(target=GuiThreadStart, args=
-    (player1_character,
-    player2_character,
-    translator.stage_index[game_start_data.stage], connection, commentary_queue))
+    (match.player1_character,
+    match.player2_character,
+    match.current_stage, connection, commentary_queue))
     Gui_thread.daemon = True
     Gui_thread.start()
 
     #intro context
     print("And the match begins!")
-    print(player1_character, "vs.", player2_character, "on", translator.stage_index[game_start_data.stage])
-    print(get_matchup_score(player1_character, player2_character))
-    print_to_gui(get_matchup_score(player1_character, player2_character))
+    print(match.player1_character, "vs.", match.player2_character, "on", match.current_stage)
+    print(get_matchup_score(match.player1_character, match.player2_character))
+    print_to_gui(get_matchup_score(match.player1_character, match.player2_character))
 
     #frame update
     command = ""
