@@ -25,7 +25,6 @@
         font_size: "24sp"
         halign: "center"
         width: 80
-        text_size: self.width, None
         size_hint: .3, .25
         pos_hint: {"top": 1, "x": .35}
 
@@ -102,15 +101,6 @@
 
     Label:
         id: lbl_console_window
-        font_size: "18sp"
-        text: root.content
-        text_size: self.width, self.height
-        size_hint: .3375, .775
-        pos_hint: {"x": .3175, "y": .025}
-        halign: "left"
-        valign: "top"
-    Label:
-        id: lbl_console_comm
         font_size: "18sp"
         text: root.comm
         text_size: self.width, self.height

@@ -22,11 +22,11 @@ class MainView(FloatLayout):
     p2_stocks = StringProperty()
 
     comm = StringProperty() #commentary
-    content = StringProperty()
     lines = 0
-    contentList = []
     outputString = ""
-    lastLine = ""
+    list_size = 0
+    new_size = 0
+    size_difference = 0
 
     stage_image = StringProperty()
 
@@ -87,6 +87,7 @@ class MainView(FloatLayout):
         global player2_stocks
 
         if(not shared_queue.empty()):
+            print("stock test")
             stock_update = shared_queue.get()
             player1_stocks = stock_update[0]
             player2_stocks = stock_update[1]
@@ -96,34 +97,29 @@ class MainView(FloatLayout):
 
         #---------------CONSOLE----------------------------------------------
         if(not shared_commentary_queue.empty()):
-            commentary.append(shared_commentary_queue.get())#should write a function that limits the size of this
+            if len(commentary) > 8:
+                self.size_difference = len(commentary) - 9
+                self.list_size = len(commentary) - self.size_difference
+
+                for i in range(0, self.size_difference):
+                    del commentary[i]
+
+            commentary.append(shared_commentary_queue.get())
+            self.list_size += 1
             shared_commentary_queue.task_done()
-        if(len(commentary) != 0):
-            self.comm = commentary[0] #just print out the first one for testing
-        else:
-            self.comm = "Nothing yet!"
-        '''
-        self.contentList = []
-        newLastLine = ""
-        with open("GUI/input.txt", "r+") as f:
-            for line in f:
-                self.contentList.append(line)
 
-            if len(self.contentList) != 0:
-                newLastLine = self.contentList[len(self.contentList) - 1]
+        self.test_list_update()
+        if len(commentary) > 8:
+                self.size_difference = len(commentary) - 9
+                self.list_size = len(commentary) - self.size_difference
 
-            if newLastLine != self.lastLine:
-                self.lastLine = self.contentList[len(self.contentList) - 1]
+                for i in range(0, self.size_difference):
+                    del commentary[i]
 
-                if len(self.contentList) > 8:
-                    self.outputString = ''.join(self.contentList[-8:])
-                else:
-                    self.outputString = ''.join(self.contentList)
-
-                self.label.text = ""
-                self.content = self.outputString
-                self.label.text = self.content
-        '''
+        if len(commentary) != 0:
+            self.comm = '\n'.join(commentary)
+            self.label.text = self.comm
+        
         #---------------STOCKS-----------------------------------------------
 
         if self.p1_stocks == None or self.p2_stocks == None:
