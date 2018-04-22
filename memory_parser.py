@@ -39,7 +39,7 @@ def update_player_data(player_data):
     player_data.stocks_remaining = post_frame_data.stocks_remaining
 
 
-def LSTM_update(data_list):
+def main_commentary_update(data_list):
     global commentary_cooldown
     commentary_cooldown -= 1
     #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
@@ -184,7 +184,7 @@ with open(full_filename, "rb") as replay:
                     stocks = [player1_data.stocks_remaining, player2_data.stocks_remaining]
                     connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
                     connection.join()
-                LSTM_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data_dep + player2_data_dep)
+                main_commentary_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data_dep + player2_data_dep)
         elif(command == GAME_END):
             data = read_frame(replay, 1)
             game_end_data.game_end_method = hex_to_int([data[0]])
