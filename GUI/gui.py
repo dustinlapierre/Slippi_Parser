@@ -2,6 +2,7 @@ import kivy
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.popup import Popup
 from kivy.properties import StringProperty, ListProperty
 from kivy.graphics import Canvas, Color, Rectangle
 
@@ -10,9 +11,43 @@ player2_character = "None"
 stage = "None"
 shared_queue = None
 shared_commentary_queue = None
+shared_stats_queue = None
 player1_stocks = 4
 player2_stocks = 4
 commentary = []
+stats_list = [""] * 22
+
+class StatsMenu(Popup):
+    def update_stats(self, *args):
+        global stats_list
+
+        if(not shared_stats_queue.empty()):
+            stats_list = shared_stats_queue.get()
+            shared_stats_queue.task_done()
+ 
+        self.ids.lbl_stage_control_1.text += stats_list[0]
+        self.ids.lbl_above_opponent_1.text += stats_list[1]
+        self.ids.lbl_time_offstage_1.text += stats_list[2]
+        self.ids.lbl_time_shielded_1.text += stats_list[3]
+        self.ids.lbl_block_success_1.text += stats_list[4]
+        self.ids.lbl_times_hit_1.text += stats_list[5]
+        self.ids.lbl_punish_amount_1.text += stats_list[6]
+        self.ids.lbl_hits_per_punish_1.text += stats_list[7]
+        self.ids.lbl_recovery_percent_1.text += stats_list[8]
+        self.ids.lbl_neutral_win_percent_1.text += stats_list[9]
+        self.ids.lbl_openings_per_kill_1.text += stats_list[10]
+
+        self.ids.lbl_stage_control_2.text += stats_list[11]
+        self.ids.lbl_above_opponent_2.text += stats_list[12]
+        self.ids.lbl_time_offstage_2.text += stats_list[13]
+        self.ids.lbl_time_shielded_2.text += stats_list[14]
+        self.ids.lbl_block_success_2.text += stats_list[15]
+        self.ids.lbl_times_hit_2.text += stats_list[16]
+        self.ids.lbl_punish_amount_2.text += stats_list[17]
+        self.ids.lbl_hits_per_punish_2.text += stats_list[18]
+        self.ids.lbl_recovery_percent_2.text += stats_list[19]
+        self.ids.lbl_neutral_win_percent_2.text += stats_list[20]
+        self.ids.lbl_openings_per_kill_2.text += stats_list[21]
 
 class MainView(FloatLayout):
     stage_label = StringProperty()
@@ -155,17 +190,19 @@ class GuiApp(App):
 
         return main
 
-def GuiThreadStart(character1, character2, current_stage, connection, commentary_queue):
+def GuiThreadStart(character1, character2, current_stage, connection, commentary_queue, stats_queue):
     global player1_character
     global player2_character
     global stage
     global shared_queue
     global shared_commentary_queue
+    global shared_stats_queue
 
     player1_character = character1
     player2_character = character2
     stage = current_stage
     shared_queue = connection
     shared_commentary_queue = commentary_queue
+    shared_stats_queue = stats_queue
 
     GuiApp().run()

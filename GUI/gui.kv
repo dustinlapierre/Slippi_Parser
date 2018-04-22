@@ -3,6 +3,94 @@
 #: import FloatLayout kivy.uix.floatlayout
 #: import BoxLayout kivy.uix.boxlayout
 #: import Window kivy.core.window
+#:import Factory kivy.factory.Factory
+#: import App kivy.app
+
+<StatsMenu>:
+    title: "Player Statistics"
+    title_align: "center"
+    auto_dismiss: False
+    size_hint: .35, 1
+    pos_hint: {"top": 1, "right": 1}
+    on_open: self.update_stats()
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: lbl_player1
+            text: "Player 1 Stats ----------"
+        Label:
+            id: lbl_stage_control_1
+            text: "Frames in stage control: "
+        Label:
+            id: lbl_above_opponent_1
+            text: "Frames above opponent: "
+        Label:
+            id: lbl_time_offstage_1
+            text: "Frames offstage: "
+        Label:
+            id: lbl_time_shielded_1
+            text: "Frames shielding: "
+        Label:
+            id: lbl_block_success_1
+            text: "Successful blocks: "
+        Label:
+            id: lbl_times_hit_1
+            text: "Times hit: "
+        Label:
+            id: lbl_punish_amount_1
+            text: "Punishes: "
+        Label:
+            id: lbl_hits_per_punish_1
+            text: "Hits per punish: "
+        Label:
+            id: lbl_recovery_percent_1
+            text: "Recovery %: "
+        Label:
+            id: lbl_neutral_win_percent_1
+            text: "Neutral Win %: "
+        Label:
+            id: lbl_openings_per_kill_1
+            text: "Openings Per Kill: "
+
+        Label:
+            id: lbl_player2
+            text: "Player 2 Stats ----------"
+        Label:
+            id: lbl_stage_control_2
+            text: "Frames in stage control: "
+        Label:
+            id: lbl_above_opponent_2
+            text: "Frames above opponent: "
+        Label:
+            id: lbl_time_offstage_2
+            text: "Frames offstage: "
+        Label:
+            id: lbl_time_shielded_2
+            text: "Frames shielding: "
+        Label:
+            id: lbl_block_success_2
+            text: "Successful blocks: "
+        Label:
+            id: lbl_times_hit_2
+            text: "Times hit: "
+        Label:
+            id: lbl_punish_amount_2
+            text: "Punishes: "
+        Label:
+            id: lbl_hits_per_punish_2
+            text: "Hits per punish: "
+        Label:
+            id: lbl_recovery_percent_2
+            text: "Recovery %: "
+        Label:
+            id: lbl_neutral_win_percent_2
+            text: "Neutral Win %: "
+        Label:
+            id: lbl_openings_per_kill_2
+            text: "Openings Per Kill: "
+        Button:
+            text: 'Close Menu'
+            on_release: root.dismiss()
 
 <MainView>:
     Label:
@@ -125,3 +213,9 @@
         halign: "left"
         valign: "top"
 
+    Button:
+        id: btn_stats
+        text: "S" + '\n' + "T" + '\n' + "A" + '\n' + "T" + '\n' + "S"
+        size_hint: .06, .16
+        pos_hint: {"top": .18, "right": .08}
+        on_release: Factory.StatsMenu().open()
