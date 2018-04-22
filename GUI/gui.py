@@ -22,11 +22,11 @@ class MainView(FloatLayout):
     p2_stocks = StringProperty()
 
     comm = StringProperty() #commentary
-    content = StringProperty()
     lines = 0
-    contentList = []
     outputString = ""
-    lastLine = ""
+    list_size = 0
+    new_size = 0
+    size_difference = 0
 
     stage_image = StringProperty()
 
@@ -61,26 +61,26 @@ class MainView(FloatLayout):
             self.rect = Rectangle(size=(self.width, self.height), source=self.stage_image)
 
         # TODO: Add text color support for different maps
-        if self.stage_label == "Dreamland 64" or self.stage_label == "Yoshi's Story":
-            self.ids.lbl_player_1.color = [0,0,0,1]
-            self.ids.lbl_player_2.color = [0,0,0,1]
-            self.ids.lbl_stage.color = [0,0,0,1]
+        #if self.stage_label == "Dreamland 64" or self.stage_label == "Yoshi's Story":
+        #    self.ids.lbl_player_1.color = [0,0,0,1]
+        #    self.ids.lbl_player_2.color = [0,0,0,1]
+        #    self.ids.lbl_stage.color = [0,0,0,1]
 
         self.bind(pos = self.update_rect, size=self.update_rect)
 
         self.ids.lbl_player_1.text = self.char1_label
-        self.ids.img_player_1.source =  str(self.player1_image)
+        self.ids.img_player_1.source = str(self.player1_image)
 
         self.ids.lbl_Player_2.text = self.char2_label
-        self.ids.img_player_2.source =  str(self.player2_image)
+        self.ids.img_player_2.source = str(self.player2_image)
 
-        self.ids.img_player_1_stock_1.source =  str(self.player1_stock_image)
-        self.ids.img_player_1_stock_2.source =  str(self.player1_stock_image)
-        self.ids.img_player_1_stock_3.source =  str(self.player1_stock_image)
+        self.ids.img_player_1_stock_1.source = str(self.player1_stock_image)
+        self.ids.img_player_1_stock_2.source = str(self.player1_stock_image)
+        self.ids.img_player_1_stock_3.source = str(self.player1_stock_image)
 
-        self.ids.img_player_2_stock_1.source =  str(self.player2_stock_image)
-        self.ids.img_player_2_stock_2.source =  str(self.player2_stock_image)
-        self.ids.img_player_2_stock_3.source =  str(self.player2_stock_image)
+        self.ids.img_player_2_stock_1.source = str(self.player2_stock_image)
+        self.ids.img_player_2_stock_2.source = str(self.player2_stock_image)
+        self.ids.img_player_2_stock_3.source = str(self.player2_stock_image)
 
     def update(self, *args):
         global player1_stocks
@@ -96,39 +96,25 @@ class MainView(FloatLayout):
 
         #---------------CONSOLE----------------------------------------------
         if(not shared_commentary_queue.empty()):
-            commentary.append(shared_commentary_queue.get())#should write a function that limits the size of this
+            commentary.append(shared_commentary_queue.get())
+            self.list_size += 1
             shared_commentary_queue.task_done()
-        if(len(commentary) != 0):
-            self.comm = commentary[0] #just print out the first one for testing
-        else:
-            self.comm = "Nothing yet!"
-        '''
-        self.contentList = []
-        newLastLine = ""
-        with open("GUI/input.txt", "r+") as f:
-            for line in f:
-                self.contentList.append(line)
 
-            if len(self.contentList) != 0:
-                newLastLine = self.contentList[len(self.contentList) - 1]
+        if len(commentary) > 8:
+            self.size_difference = len(commentary) - 9
+            self.list_size = len(commentary) - self.size_difference
+            for i in range(0, self.size_difference):
+                    del commentary[i]
 
-            if newLastLine != self.lastLine:
-                self.lastLine = self.contentList[len(self.contentList) - 1]
-
-                if len(self.contentList) > 8:
-                    self.outputString = ''.join(self.contentList[-8:])
-                else:
-                    self.outputString = ''.join(self.contentList)
-
-                self.label.text = ""
-                self.content = self.outputString
-                self.label.text = self.content
-        '''
+        if len(commentary) != 0:
+            self.comm = '\n'.join(commentary)
+            self.label.text = self.comm
+        
         #---------------STOCKS-----------------------------------------------
 
         if self.p1_stocks == None or self.p2_stocks == None:
             raise ValueError("Invalid Value for Stocks")
-        elif self.p1_stocks > "3" or self.p2_stocks > "3":
+        elif self.p1_stocks > "4" or self.p2_stocks > "4":
             raise ValueError("Invalid Value for Stocks")
         elif self.p1_stocks < "0" or self.p2_stocks < "0":
             raise ValueError("Invalid Value for Stocks")
