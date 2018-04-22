@@ -97,7 +97,7 @@ class MainView(FloatLayout):
 
         #---------------CONSOLE----------------------------------------------
         if(not shared_commentary_queue.empty()):
-            commentary.append(shared_commentary_queue.get())
+            commentary.append(shared_commentary_queue.get() + '\n')
             self.list_size += 1
             shared_commentary_queue.task_done()
 
@@ -138,17 +138,17 @@ class MainView(FloatLayout):
         if self.p2_stocks == "3":
             self.remove_widget(self.ids.img_player_2_stock_4)
         if self.p2_stocks == "2":
-            self.remove_widget(self.ids.img_player_1_stock_4)
+            self.remove_widget(self.ids.img_player_2_stock_4)
             self.remove_widget(self.ids.img_player_2_stock_3)
         elif self.p2_stocks == "1":
-            self.remove_widget(self.ids.img_player_1_stock_4)
+            self.remove_widget(self.ids.img_player_2_stock_4)
             self.remove_widget(self.ids.img_player_2_stock_3)
             self.remove_widget(self.ids.img_player_2_stock_2)
         elif self.p2_stocks == "0":
             self.remove_widget(self.ids.img_player_2_stock_1)
             self.remove_widget(self.ids.img_player_2_stock_2)
             self.remove_widget(self.ids.img_player_2_stock_3)
-            self.remove_widget(self.ids.img_player_1_stock_4)
+            self.remove_widget(self.ids.img_player_2_stock_4)
 
     def update_rect(self, *args):
         self.rect.pos = self.pos
