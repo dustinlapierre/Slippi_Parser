@@ -1,8 +1,6 @@
 import kivy
 from kivy.app import App
 from kivy.clock import Clock
-#from kivy.core.window import Window
-#import kivy.core
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import StringProperty, ListProperty
 from kivy.graphics import Canvas, Color, Rectangle
@@ -24,10 +22,6 @@ class MainView(FloatLayout):
     p2_stocks = StringProperty()
 
     comm = StringProperty() #commentary
-    lines = 0
-    outputString = ""
-    list_size = 0
-    new_size = 0
     size_difference = 0
 
     stage_image = StringProperty()
@@ -80,8 +74,6 @@ class MainView(FloatLayout):
 
         self.bind(pos = self.update_rect, size=self.update_rect)
 
-        kivy.core.window.Window.size = (1200, 600)
-
     def update(self, *args):
         global player1_stocks
         global player2_stocks
@@ -97,15 +89,16 @@ class MainView(FloatLayout):
 
         #---------------CONSOLE----------------------------------------------
         if(not shared_commentary_queue.empty()):
-            commentary.append(shared_commentary_queue.get() + '\n')
-            self.list_size += 1
+            temp_list = []
+            temp_list = shared_commentary_queue.get().split('\n')
+            for index in temp_list:
+                commentary.append(index + '\n')
             shared_commentary_queue.task_done()
 
-        if len(commentary) > 8:
-            self.size_difference = len(commentary) - 9
-            self.list_size = len(commentary) - self.size_difference
-            for i in range(0, self.size_difference):
-                    del commentary[i]
+        if len(commentary) > 21:
+            self.size_difference = len(commentary) - 21
+            for i in range(self.size_difference):
+                    commentary.pop(0)
 
         if len(commentary) != 0:
             self.comm = ''.join(commentary)
