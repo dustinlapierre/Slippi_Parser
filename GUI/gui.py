@@ -1,6 +1,7 @@
 import kivy
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.core.window import Window
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import StringProperty, ListProperty
 from kivy.graphics import Canvas, Color, Rectangle
@@ -78,6 +79,8 @@ class MainView(FloatLayout):
 
         self.bind(pos = self.update_rect, size=self.update_rect)
 
+        Window.size = (1200, 600)
+
     def update(self, *args):
         global player1_stocks
         global player2_stocks
@@ -87,12 +90,13 @@ class MainView(FloatLayout):
             player1_stocks = stock_update[0]
             player2_stocks = stock_update[1]
             shared_queue.task_done()
+
         self.p1_stocks = str(player1_stocks)
         self.p2_stocks = str(player2_stocks)
 
         #---------------CONSOLE----------------------------------------------
         if(not shared_commentary_queue.empty()):
-           commentary.append(shared_commentary_queue.get())
+            commentary.append(shared_commentary_queue.get())
             self.list_size += 1
             shared_commentary_queue.task_done()
 
