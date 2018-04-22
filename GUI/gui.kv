@@ -11,6 +11,7 @@
         width: 80
         size_hint: .3, .25
         pos_hint: {"top": 1, "left": 1}
+        markup: True
 
     Label:
         id: lbl_Player_2
@@ -19,6 +20,7 @@
         width: 80
         size_hint: .3, .25
         pos_hint: {"top": 1, "right": 1}
+        markup: True
 
     Label:
         id: lbl_stage
@@ -27,6 +29,7 @@
         width: 80
         size_hint: .3, .25
         pos_hint: {"top": 1, "x": .35}
+        markup: True
 
     Image:
         id: img_player_1
@@ -43,43 +46,55 @@
     Image:
         id: img_player_1_stock_1
         allow_stretch: True
-        size_hint: .1, .1
+        size_hint: .085, .085
         pos_hint: {"top": .4, "right": .2}
 
     Image:
         id: img_player_1_stock_2
         allow_stretch: True
-        size_hint: .1, .1
-        pos_hint: {"top": .275, "right": .2}
+        size_hint: .085, .085
+        pos_hint: {"top": .30625, "right": .2}
 
     Image:
         id: img_player_1_stock_3
         allow_stretch: True
-        size_hint: .1, .1
-        pos_hint: {"top": .15, "right": .2}
+        size_hint: .085, .085
+        pos_hint: {"top": .2125, "right": .2}
+    
+    Image:
+        id: img_player_1_stock_4
+        allow_stretch: True
+        size_hint: .085, .085
+        pos_hint: {"top": .11875, "right": .2}
 
     Image:
         id: img_player_2_stock_1
         allow_stretch: True
-        size_hint: .1, .1
+        size_hint: .085, .085
         pos_hint: {"top": .4, "right": .92}
 
     Image:
         id: img_player_2_stock_2
         allow_stretch: True
-        size_hint: .1, .1
-        pos_hint: {"top": .275, "right": .92}
+        size_hint: .085, .085
+        pos_hint: {"top": .30625, "right": .92}
 
     Image:
         id: img_player_2_stock_3
         allow_stretch: True
-        size_hint: .1, .1
-        pos_hint: {"top": .15, "right": .92}
+        size_hint: .085, .085
+        pos_hint: {"top": .2125, "right": .92}
+
+    Image:
+        id: img_player_2_stock_4
+        allow_stretch: True
+        size_hint: .085, .085
+        pos_hint: {"top": .11875, "right": .92}
 
     Label:
         id: lbl_console_window_border
-        size_hint: .35, .8
-        pos_hint: {"x": .3125, "y": .015}
+        size_hint: .46, .8
+        pos_hint: {"x": .2625, "y": .015}
         canvas.before:
             Color
                 rgba: 1, .68, .26, 1
@@ -90,8 +105,8 @@
     Label:
         id: lbl_console_window_behind
         color: 0, 0, 0, 1
-        size_hint: .3375, .775
-        pos_hint: {"x": .3175, "y": .025}
+        size_hint: .4475, .775
+        pos_hint: {"x": .2675, "y": .025}
         canvas.before:
             Color
                 rgba: 0, 0, 0, 1
@@ -104,7 +119,7 @@
         font_size: "18sp"
         text: root.comm
         text_size: self.width, self.height
-        size_hint: .3375, .775
-        pos_hint: {"x": .3175, "y": .025}
+        size_hint: .4475, .775
+        pos_hint: {"x": .2675, "y": .025}
         halign: "left"
         valign: "top"
