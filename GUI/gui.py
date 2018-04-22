@@ -1,7 +1,8 @@
 import kivy
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.core.window import Window
+#from kivy.core.window import Window
+#import kivy.core
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import StringProperty, ListProperty
 from kivy.graphics import Canvas, Color, Rectangle
@@ -79,7 +80,7 @@ class MainView(FloatLayout):
 
         self.bind(pos = self.update_rect, size=self.update_rect)
 
-        Window.size = (1200, 600)
+        kivy.core.window.Window.size = (1200, 600)
 
     def update(self, *args):
         global player1_stocks
@@ -174,7 +175,4 @@ def GuiThreadStart(character1, character2, current_stage, connection, commentary
     shared_queue = connection
     shared_commentary_queue = commentary_queue
 
-    GuiApp().run()
-
-if __name__ == "__main__":
     GuiApp().run()
