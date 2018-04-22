@@ -2,7 +2,7 @@ import kivy
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, ListProperty
 from kivy.graphics import Canvas, Color, Rectangle
 
 player1_character = "None"
@@ -10,8 +10,8 @@ player2_character = "None"
 stage = "None"
 shared_queue = None
 shared_commentary_queue = None
-player1_stocks = 0
-player2_stocks = 0
+player1_stocks = 4
+player2_stocks = 4
 commentary = []
 
 class MainView(FloatLayout):
@@ -42,8 +42,6 @@ class MainView(FloatLayout):
         self.char1_label = player1_character
         self.char2_label = player2_character
 
-        #---------AFTER BAREBONES------------------------------------------------------------
-
         self.label = self.ids.lbl_console_window
 
         self.stage_image = "GUI/stages/" + self.stage_label + ".jpg"
@@ -54,33 +52,31 @@ class MainView(FloatLayout):
         self.player2_image = "GUI/characters/" + self.char2_label + ".jpg"
         self.player2_stock_image = "GUI/stocks/" + self.char2_label + ".png"
 
-        #-------------------------------------------------------------------
+        if self.stage_image == "GUI/stages/Dreamland 64.jpg" or self.stage_image == "GUI/stages/Yoshi's Story.jpg":
+            self.ids.lbl_stage.text = "[color=black]" + self.stage_label + "[/color]"
+            self.ids.lbl_player_1.text = "[color=black]" + self.char1_label + "[/color]"
+            self.ids.lbl_Player_2.text = "[color=black]" + self.char2_label + "[/color]"
+        else:
+            self.ids.lbl_stage.text = self.stage_label
+            self.ids.lbl_player_1.text = self.char1_label
+            self.ids.lbl_Player_2.text = self.char2_label
 
-        self.ids.lbl_stage.text = self.stage_label
         with self.canvas.before:
             self.rect = Rectangle(size=(self.width, self.height), source=self.stage_image)
-
-        # TODO: Add text color support for different maps
-        #if self.stage_label == "Dreamland 64" or self.stage_label == "Yoshi's Story":
-        #    self.ids.lbl_player_1.color = [0,0,0,1]
-        #    self.ids.lbl_player_2.color = [0,0,0,1]
-        #    self.ids.lbl_stage.color = [0,0,0,1]
-
-        self.bind(pos = self.update_rect, size=self.update_rect)
-
-        self.ids.lbl_player_1.text = self.char1_label
         self.ids.img_player_1.source = str(self.player1_image)
-
-        self.ids.lbl_Player_2.text = self.char2_label
         self.ids.img_player_2.source = str(self.player2_image)
 
         self.ids.img_player_1_stock_1.source = str(self.player1_stock_image)
         self.ids.img_player_1_stock_2.source = str(self.player1_stock_image)
         self.ids.img_player_1_stock_3.source = str(self.player1_stock_image)
+        self.ids.img_player_1_stock_4.source = str(self.player1_stock_image)
 
         self.ids.img_player_2_stock_1.source = str(self.player2_stock_image)
         self.ids.img_player_2_stock_2.source = str(self.player2_stock_image)
         self.ids.img_player_2_stock_3.source = str(self.player2_stock_image)
+        self.ids.img_player_2_stock_4.source = str(self.player2_stock_image)
+
+        self.bind(pos = self.update_rect, size=self.update_rect)
 
     def update(self, *args):
         global player1_stocks
@@ -96,7 +92,7 @@ class MainView(FloatLayout):
 
         #---------------CONSOLE----------------------------------------------
         if(not shared_commentary_queue.empty()):
-            commentary.append(shared_commentary_queue.get())
+           commentary.append(shared_commentary_queue.get())
             self.list_size += 1
             shared_commentary_queue.task_done()
 
@@ -107,7 +103,7 @@ class MainView(FloatLayout):
                     del commentary[i]
 
         if len(commentary) != 0:
-            self.comm = '\n'.join(commentary)
+            self.comm = ''.join(commentary)
             self.label.text = self.comm
         
         #---------------STOCKS-----------------------------------------------
@@ -119,26 +115,35 @@ class MainView(FloatLayout):
         elif self.p1_stocks < "0" or self.p2_stocks < "0":
             raise ValueError("Invalid Value for Stocks")
 
+        if self.p1_stocks == "3":
+            self.remove_widget(self.ids.img_player_1_stock_4)
         if self.p1_stocks == "2":
+            self.remove_widget(self.ids.img_player_1_stock_4)
             self.remove_widget(self.ids.img_player_1_stock_3)
         elif self.p1_stocks == "1":
+            self.remove_widget(self.ids.img_player_1_stock_4)
             self.remove_widget(self.ids.img_player_1_stock_3)
             self.remove_widget(self.ids.img_player_1_stock_2)
         elif self.p1_stocks == "0":
             self.remove_widget(self.ids.img_player_1_stock_1)
             self.remove_widget(self.ids.img_player_1_stock_2)
             self.remove_widget(self.ids.img_player_1_stock_3)
+            self.remove_widget(self.ids.img_player_1_stock_4)
 
+        if self.p2_stocks == "3":
+            self.remove_widget(self.ids.img_player_2_stock_4)
         if self.p2_stocks == "2":
+            self.remove_widget(self.ids.img_player_1_stock_4)
             self.remove_widget(self.ids.img_player_2_stock_3)
         elif self.p2_stocks == "1":
+            self.remove_widget(self.ids.img_player_1_stock_4)
             self.remove_widget(self.ids.img_player_2_stock_3)
             self.remove_widget(self.ids.img_player_2_stock_2)
         elif self.p2_stocks == "0":
             self.remove_widget(self.ids.img_player_2_stock_1)
             self.remove_widget(self.ids.img_player_2_stock_2)
             self.remove_widget(self.ids.img_player_2_stock_3)
-
+            self.remove_widget(self.ids.img_player_1_stock_4)
 
     def update_rect(self, *args):
         self.rect.pos = self.pos
@@ -165,4 +170,7 @@ def GuiThreadStart(character1, character2, current_stage, connection, commentary
     shared_queue = connection
     shared_commentary_queue = commentary_queue
 
+    GuiApp().run()
+
+if __name__ == "__main__":
     GuiApp().run()
