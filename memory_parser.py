@@ -363,10 +363,11 @@ with open(full_filename, "rb") as replay:
     #threading
     connection = Queue()
     commentary_queue = Queue()
+    stats_queue = Queue()
     Gui_thread = threading.Thread(target=GuiThreadStart, args=
     (player1_character,
     player2_character,
-    translator.stage_index[game_start_data.stage], connection, commentary_queue))
+    translator.stage_index[game_start_data.stage], connection, commentary_queue, stats_queue))
     Gui_thread.daemon = True
     Gui_thread.start()
 
