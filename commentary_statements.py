@@ -1,6 +1,46 @@
 from structures import *
 #this file contains functions that produce commentary strings
-def print_final_stats():
+def send_stats_gui(stats_queue):
+    if(stats_queue.empty()):
+        stats = []
+        stats.append(str(player1_analytics.stage_control))
+        stats.append(str(player1_analytics.above_opponent))
+        stats.append(str(player1_analytics.time_offstage))
+        stats.append(str(player1_analytics.time_shielded))
+        stats.append(str(player1_analytics.block_success))
+        stats.append(str(player1_analytics.block_failed))
+        stats.append(str(player1_analytics.punish_amount))
+        if(player1_analytics.punish_amount != 0):
+            stats.append(str((player2_analytics.block_failed/player1_analytics.punish_amount)))
+        else:
+            stats.append("0")
+        if(player1_analytics.recovery_success != 0):
+            stats.append(str((player1_analytics.recovery_success/(player1_analytics.recovery_success+player1_analytics.recovery_fail))*100))
+        else:
+            stats.append("0")
+        if((player1_analytics.punish_amount + player2_analytics.punish_amount) != 0):
+            stats.append(str((player1_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))*100))
+        else:
+            stats.append("0")
+        if(player2_data.stocks_remaining != 4):
+            stats.append(str((player1_analytics.punish_amount/(4 - player2_data.stocks_remaining))))
+        else:
+            stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        stats.append("0")
+        print(stats)
+        stats_queue.put(stats)
+        stats_queue.join()
+    """
     print("Player 1 Stats ----------")
     print("Frames in stage control:", player1_analytics.stage_control)
     print("Frames above opponent:", player1_analytics.above_opponent)
@@ -34,6 +74,7 @@ def print_final_stats():
         print("Neutral Win %:", (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))*100)
     if(player1_data.stocks_remaining != 4):
         print("Openings Per Kill:", (player2_analytics.punish_amount/(4 - player1_data.stocks_remaining)))
+    """
 
 def recovery_comment():
     if(player1_analytics.recovery_success != player1_analytics.recovery_success_last):

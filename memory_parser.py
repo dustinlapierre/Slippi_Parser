@@ -58,7 +58,7 @@ def main_commentary_update(data_list):
             pred = LSTM.make_prediction(LSTM_batch1)
             del LSTM_batch1[:]
             if(pred >= 0.85):
-                print("Player 1 is trying to bait out a commit with that dash dance!")
+                print_to_gui("Player 1 is trying to bait out a commit with that dash dance!")
                 commentary_cooldown = 30
         if(len(LSTM_batch2) < 120):
             LSTM_batch2.append(normalized_data_player2)
@@ -66,53 +66,54 @@ def main_commentary_update(data_list):
             pred = LSTM.make_prediction(LSTM_batch2)
             del LSTM_batch2[:]
             if(pred >= 0.85):
-                print("Player 2 is trying to bait out a commit with that dash dance!")
+                print_to_gui("Player 2 is trying to bait out a commit with that dash dance!")
                 commentary_cooldown = 30
 
         #shield pressure check
         if(commentary_cooldown <= 0):
             pressure = check_shield_pressure()
             if(pressure[0] == True):
-                print("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.")
+                print_to_gui("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.")
                 commentary_cooldown = 60
             elif(pressure[1] == True):
-                print("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.")
+                print_to_gui("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.")
                 commentary_cooldown = 60
         #character specific stuff
         if(commentary_cooldown <= 0):
             character_com = character_specific_commentary()
             if(character_com != None):
-                print(character_com)
+                print_to_gui(character_com)
                 commentary_cooldown = 60
         #taunt check
         if(commentary_cooldown <= 0):
             taunt_com = taunt_comment()
             if(taunt_com != None):
-                print(taunt_com)
+                print_to_gui(taunt_com)
                 commentary_cooldown = 120
         #taunt to get bodied commentary
         if(commentary_cooldown <= 0):
             tauntb_com = taunt_bodied_check()
             if(tauntb_com != None):
-                print(tauntb_com)
+                print_to_gui(tauntb_com)
                 commentary_cooldown = 120
         #recovery check
         if(commentary_cooldown <= 0):
             recov_com = recovery_comment()
             if(recov_com != None):
-                print(recov_com)
+                print_to_gui(recov_com)
                 commentary_cooldown = 60
         #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
         if(commentary_cooldown <= -300):
-            print(get_support_commentary(data_list[1]))
+            print_to_gui(get_support_commentary(data_list[1]))
             commentary_cooldown = 60
 
     update_analytics_frame_buffer()
+    send_stats_gui(stats_queue)
 
 def print_to_gui(text):
     if(commentary_queue.empty()):
         commentary_queue.put(text)
-        connection.join()
+        commentary_queue.join()
 
 #shared mem and data holders
 full_filename = watch_for_create(".")
@@ -121,6 +122,7 @@ LSTM_batch2 = []
 commentary_cooldown = 120
 connection = Queue()
 commentary_queue = Queue()
+stats_queue = Queue()
 
 #live parse the newly created file
 with open(full_filename, "rb") as replay:
@@ -138,7 +140,7 @@ with open(full_filename, "rb") as replay:
     Gui_thread = threading.Thread(target=GuiThreadStart, args=
     (match.player1_character,
     match.player2_character,
-    match.current_stage, connection, commentary_queue))
+    match.current_stage, connection, commentary_queue, stats_queue))
     Gui_thread.daemon = True
     Gui_thread.start()
 
@@ -146,7 +148,9 @@ with open(full_filename, "rb") as replay:
     print("And the match begins!")
     print(match.player1_character, "vs.", match.player2_character, "on", match.current_stage)
     print(get_matchup_score(match.player1_character, match.player2_character))
-    print_to_gui(get_matchup_score(match.player1_character, match.player2_character))
+    #print_to_gui(("And the match begins!\n" +
+    #match.player1_character + " vs. " + match.player2_character + " on " + match.current_stage + "\n" +
+    #get_matchup_score(match.player1_character, match.player2_character)))
 
     #frame update
     command = ""
@@ -190,12 +194,11 @@ with open(full_filename, "rb") as replay:
             game_end_data.game_end_method = hex_to_int([data[0]])
             if(game_end_data.game_end_method == 3):
                 if(player1_data.stocks_remaining == 0):
-                    print("Player 2 takes the game!")
+                    print_to_gui("Player 2 takes the game!")
                 else:
-                    print("Player 1 takes the game!")
+                    print_to_gui("Player 1 takes the game!")
             else:
-                print("No Contest!")
-            print_final_stats()
+                print_to_gui("No Contest!")
             flag = 1
 
     replay.close()
