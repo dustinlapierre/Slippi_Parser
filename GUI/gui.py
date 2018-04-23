@@ -24,7 +24,7 @@ class StatsMenu(Popup):
         if(not shared_stats_queue.empty()):
             stats_list = shared_stats_queue.get()
             shared_stats_queue.task_done()
- 
+
         self.ids.lbl_stage_control_1.text += stats_list[0]
         self.ids.lbl_above_opponent_1.text += stats_list[1]
         self.ids.lbl_time_offstage_1.text += stats_list[2]
@@ -130,15 +130,15 @@ class MainView(FloatLayout):
                 commentary.append(index + '\n')
             shared_commentary_queue.task_done()
 
-        if len(commentary) > 21:
-            self.size_difference = len(commentary) - 21
+        if len(commentary) > 15:
+            self.size_difference = len(commentary) - 15
             for i in range(self.size_difference):
                     commentary.pop(0)
 
         if len(commentary) != 0:
             self.comm = ''.join(commentary)
             self.label.text = self.comm
-        
+
         #---------------STOCKS-----------------------------------------------
 
         if self.p1_stocks == None or self.p2_stocks == None:

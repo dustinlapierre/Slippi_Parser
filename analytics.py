@@ -3,6 +3,7 @@ from random import *
 from enum import Enum
 import translator
 from structures import *
+from general import *
 
 #history of last three things said
 commentary_history = []
@@ -80,12 +81,14 @@ def character_specific_commentary():
         if(player2_analytics.percentage_last != player2_data.percent and player2_analytics.offstage_state == True):
             if(player1_data.action_state in translator.action_state_id):
                 if(player1_data.action_state == 69):
-                    return "Player 1 with an offstage dair, Player 2 is in a bad position"
+                    return choose("Player 1 with an offstage dair, Player 2 is in a bad position",
+                                    "That dair should close out this stock")
     if(match.player2_character == "Falco" or match.player2_character == "Marth"):
         if(player1_analytics.percentage_last != player1_data.percent and player1_analytics.offstage_state == True):
             if(player2_data.action_state in translator.action_state_id):
                 if(player2_data.action_state == 69):
-                    return "Player 2 with an offstage dair, Player 1 is in a bad position"
+                    return choose("Player 2 with an offstage dair, Player 1 is in a bad position",
+                                    "That dair should close out this stock")
     return None
 
 def add_history(com_number):
@@ -116,6 +119,8 @@ def select_commentary_by_weight(history):
     #weight neutral
     weight = abs(player1_analytics.punish_amount - player2_analytics.punish_amount)
     weight = flatten(weight, 0, 100)
+    if(player1_analytics.punish_amount < 3 and player2_analytics.punish_amount < 3):
+        weight = 0
     if(CommentaryNumber.NEUTRAL_WINS in history):
         weight = weight/(history.count(CommentaryNumber.NEUTRAL_WINS)+1)
     weights.append(weight)
@@ -147,8 +152,8 @@ def select_commentary_by_weight(history):
         weight = weight/(history.count(CommentaryNumber.ABOVE)+1)
     weights.append(weight)
     #weight openings per kill
-    if(player2_analytics.block_failed != 0 and player1_analytics.block_failed != 0):
-        weight = abs((player1_analytics.punish_amount/player2_analytics.block_failed) - (player2_analytics.punish_amount/player1_analytics.block_failed))
+    if(player1_data.stocks_remaining != 4 and player2_data.stocks_remaining != 4):
+        weight = abs((player1_analytics.punish_amount/(4 - player2_data.stocks_remaining)) - (player2_analytics.punish_amount/(4 - player1_data.stocks_remaining)))
         weight = flatten(weight, 0, 15)
     else:
         weight = 0
@@ -170,9 +175,11 @@ def get_support_commentary(frame_number):
             p2_stage = 0
 
         if(p1_stage > p2_stage):
-            return "Player 1 has had stage control for a majority of the game."
+            return choose("Player 1 has had stage control for a majority of the game.",
+                            "Player 1 has been controlling the stage beautifully this game.")
         elif(p2_stage > p1_stage):
-            return "Player 2 has had stage control for a majority of the game."
+            return choose("Player 1 has had stage control for a majority of the game.",
+                            "Player 1 has been controlling the stage beautifully this game.")
         else:
             return "Stage control has been hotly contested this match."
 
@@ -193,9 +200,11 @@ def get_support_commentary(frame_number):
             return "Player 1 is finding a lot of holes in Player 2's defense.\nPlayer 2's block rate is " + str(p2_block * 100) + "%"
         else:
             if(player1_data.stocks_remaining < player2_data.stocks_remaining):
-                return "Player 2's strong offense is helping them hold the lead."
+                return choose("Player 2's strong offense is helping them hold the lead.",
+                                "Player 1 is going to need to strengthen their defense if they want to catch up.")
             elif(player2_data.stocks_remaining < player1_data.stocks_remaining):
-                return "Player 1's strong offense is helping them hold the lead."
+                return choose("Player 1's strong offense is helping them hold the lead.",
+                                "Player 2 is going to need to strengthen their defense if they want to catch up.")
             else:
                 return "I'm seeing really strong defense from both players."
 
@@ -206,17 +215,20 @@ def get_support_commentary(frame_number):
             player2_nooch = (player2_analytics.punish_amount/(player1_analytics.punish_amount + player2_analytics.punish_amount))
 
             if(player1_nooch > 0.60):
-                output = "Player 1 is really dominating in neutral"
+                output = choose("Player 1 is really dominating in neutral",
+                                "Player 1's neutral game is looking strong")
                 if(player1_data.stocks_remaining < player_data.stocks_remaining):
                     output += ", but Player 2 seems to be getting more off their neutral wins."
                 return output
             elif(player2_nooch > 0.60):
-                output = "Player 2 is really dominating in neutral"
+                output = choose("Player 2 is really dominating in neutral",
+                                "Player 2's neutral game is looking strong")
                 if(player2_data.stocks_remaining < player1_data.stocks_remaining):
                     output += ", but Player 1 seems to be getting more off their neutral wins."
                 return output
             else:
-                output = "Both players are going about even in neutral so far"
+                output = choose("Both players are going about even in neutral so far",
+                                "The neutral game from both players is looking strong")
                 if(player1_data.stocks_remaining < player2_data.stocks_remaining):
                     output += ", but Player 2 is getting more off their neutral wins."
                 elif(player2_data.stocks_remaining < player1_data.stocks_remaining):
@@ -229,12 +241,14 @@ def get_support_commentary(frame_number):
         add_history(CommentaryNumber.RECOVERY)
         if(player1_analytics.recovery_success > player2_analytics.recovery_success):
             if(player1_data.stocks_remaining >= player2_data.stocks_remaining):
-                return "Player 1's recovery has been solid this game."
+                return choose("Player 1's recovery has been solid this game.",
+                                "Player 2 is having a tough time edge guarding")
             if(player1_data.stocks_remaining < player2_data.stocks_remaining):
                 return "Player 1's recovery has been good, but it just isn't enough to stay ahead."
         elif(player2_analytics.recovery_success > player1_analytics.recovery_success):
             if(player2_data.stocks_remaining >= player1_data.stocks_remaining):
-                return "Player 2's recovery has been solid this game."
+                return choose("Player 2's recovery has been solid this game.",
+                                "Player 1 is having a tough time edge guarding")
             if(player2_data.stocks_remaining < player1_data.stocks_remaining):
                 return "Player 2's recovery has been good, but it just isn't enough to stay ahead."
         else:
@@ -248,18 +262,22 @@ def get_support_commentary(frame_number):
         else:
             p1_punish, p2_punish = 0, 0
         if(p1_punish > p2_punish):
-            return "Player 1 has been getting a lot more off their openings."
+            return choose("Player 1 has been getting a lot more off their openings.",
+                            "Player 1's punish game is looking strong.")
         elif(p1_punish < p2_punish):
-            return "Player 2 has been getting a lot more off their openings."
+            return choose("Player 2 has been getting a lot more off their openings.",
+                            "Player 2's punish game is looking strong.")
         else:
             return "The punish game from both players has been close to even."
 
     elif(choice == CommentaryNumber.OFFSTAGE):
         add_history(CommentaryNumber.OFFSTAGE)
         if(player1_analytics.time_offstage > player2_analytics.time_offstage):
-            return "Player 2 isn't allowing Player 1 to get their footing on stage."
+            return choose("Player 2 isn't allowing Player 1 to get their footing on stage.",
+                            "Player 1 is spending a lot of time offstage")
         elif(player2_analytics.time_offstage > player1_analytics.time_offstage):
-            return "Player 1 isn't allowing Player 2 to get their footing on stage."
+            return choose("Player 1 isn't allowing Player 1 to get their footing on stage.",
+                            "Player 2 is spending a lot of time offstage")
         else:
             return "Hard to say which player has spent more time offstage."
 
@@ -267,12 +285,14 @@ def get_support_commentary(frame_number):
         add_history(CommentaryNumber.ABOVE)
         if(player1_analytics.above_opponent > player2_analytics.above_opponent):
             if(player1_data.stocks_remaining < player2_data.stocks_remaining):
-                return "Player 2 has been doing well juggling Player 1 in the air."
+                return choose("Player 2 has been doing well juggling Player 1 in the air.",
+                                "Player 2 just won't let player 1 stay grounded.")
             elif(player1_data.stocks_remaining >= player2_data.stocks_remaining):
                 return "Player 1 has been playing the vertical advantage and attacking from above."
         elif(player2_analytics.above_opponent > player1_analytics.above_opponent):
             if(player2_data.stocks_remaining < player1_data.stocks_remaining):
-                return "Player 1 has been doing well juggling Player 2 in the air."
+                return choose("Player 1 has been doing well juggling Player 1 in the air.",
+                                "Player 1 just won't let player 2 stay grounded.")
             elif(player2_data.stocks_remaining >= player1_data.stocks_remaining):
                 return "Player 2 has been playing the vertical advantage and attacking from above."
         else:
@@ -286,11 +306,13 @@ def get_support_commentary(frame_number):
         else:
             p1_openings, p2_openings = 0, 0
         if(p1_openings > p2_openings):
-            return "Player 1 has been extremely efficient with their punishes."
+            return choose("Player 1 has been extremely efficient with their punishes.",
+                            ("Player 1 is averaging " + str(p1_openings) + " openings per kill!"))
         elif(p1_openings < p2_openings):
-            return "Player 2 has been extremely efficient with their punishes."
+            return choose("Player 2 has been extremely efficient with their punishes.",
+                            ("Player 2 is averaging " + str(p2_openings) + " openings per kill!"))
         else:
-            return "Both players are punishing equally, it's not clear which way this is gonna go."
+            return "Both players have been pretty efficient with their kills."
 
 def get_matchup_score(player1_character, player2_character):
     #this will eventually return a string discussing the matchup from player 1's perspective
@@ -436,6 +458,19 @@ def taunt_bodied_check():
         return "Player 1 with the taunt to get bodied true combo!"
     elif(player2_data.action_state in range(0, 13) and player2_analytics.taunt_timer > 0):
         return "Player 2 with the taunt to get bodied true combo!"
+    return None
+
+def huge_lead_comment():
+    if(abs(player1_data.stocks_remaining - player2_data.stocks_remaining) >= 2):
+        if(player1_data.stocks_remaining > player2_data.stocks_remaining):
+            return "Player 2 is getting bodied pretty hard."
+        else:
+            return "Player 1 is getting bodied pretty hard."
+    return None
+
+def comeback_comment():
+    if(player1_data.stocks_remaining == player2_data.stocks_remaining):
+        return "What an incredible comeback!"
     return None
 
 def check_shield_pressure():

@@ -1,4 +1,5 @@
 from structures import *
+from general import *
 #this file contains functions that produce commentary strings
 def send_stats_gui(stats_queue):
     if(stats_queue.empty()):
@@ -90,13 +91,17 @@ def send_stats_gui(stats_queue):
 
 def recovery_comment():
     if(player1_analytics.recovery_success != player1_analytics.recovery_success_last):
-        return "Good recovery from Player 1."
+        return choose("Good recovery from Player 1.",
+                        "Player 2 drops the edge guard.")
     elif(player1_analytics.recovery_fail != player1_analytics.recovery_fail_last):
-        return "Good edge guard from Player 2."
+        return choose("Good edge guard from Player 2.",
+                        "And Player 2 gets the edge guard.")
     if(player2_analytics.recovery_success != player2_analytics.recovery_success_last):
-        return "Good recovery from Player 2."
+        return choose("Good recovery from Player 2.",
+                        "Player 1 drops the edge guard.")
     elif(player2_analytics.recovery_fail != player2_analytics.recovery_fail_last):
-        return "Good edge guard from Player 1."
+        return choose("Good edge guard from Player 1.",
+                        "And Player 1 gets the edge guard.")
     return None
 
 def taunt_comment():

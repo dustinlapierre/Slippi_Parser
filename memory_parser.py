@@ -8,6 +8,7 @@ from structures import *
 from analytics import *
 from commentary_statements import *
 from parse_functions import *
+from general import *
 from file_detection import watch_for_create
 
 import sys
@@ -38,9 +39,9 @@ def update_player_data(player_data):
     player_data.shield_size = post_frame_data.shield_size
     player_data.stocks_remaining = post_frame_data.stocks_remaining
 
-
 def main_commentary_update(data_list):
     global commentary_cooldown
+    global lead_once
     commentary_cooldown -= 1
     #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
     update_analytics()
@@ -58,7 +59,8 @@ def main_commentary_update(data_list):
             pred = LSTM.make_prediction(LSTM_batch1)
             del LSTM_batch1[:]
             if(pred >= 0.85):
-                print_to_gui("Player 1 is trying to bait out a commit with that dash dance!")
+                print_to_gui(choose("Player 1 is trying to bait out a commit with that dash dance!",
+                                    "Player 1 is dash dancing around trying to get player 2 to approach."))
                 commentary_cooldown = 30
         if(len(LSTM_batch2) < 120):
             LSTM_batch2.append(normalized_data_player2)
@@ -66,17 +68,20 @@ def main_commentary_update(data_list):
             pred = LSTM.make_prediction(LSTM_batch2)
             del LSTM_batch2[:]
             if(pred >= 0.85):
-                print_to_gui("Player 2 is trying to bait out a commit with that dash dance!")
+                print_to_gui(choose("Player 2 is trying to bait out a commit with that dash dance!",
+                                    "Player 2 is dash dancing around trying to get player 1 to approach."))
                 commentary_cooldown = 30
 
         #shield pressure check
         if(commentary_cooldown <= 0):
             pressure = check_shield_pressure()
             if(pressure[0] == True):
-                print_to_gui("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.")
+                print_to_gui(choose("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.",
+                                    "Player 2 is under a lot of pressure, their shield might break!"))
                 commentary_cooldown = 60
             elif(pressure[1] == True):
-                print_to_gui("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.")
+                print_to_gui(choose("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.",
+                                    "Player 2 is under a lot of pressure, their shield might break!"))
                 commentary_cooldown = 60
         #character specific stuff
         if(commentary_cooldown <= 0):
@@ -102,6 +107,20 @@ def main_commentary_update(data_list):
             if(recov_com != None):
                 print_to_gui(recov_com)
                 commentary_cooldown = 60
+        #huge lead check
+        if(commentary_cooldown <= 0 and lead_once == False):
+            lead_com = huge_lead_comment()
+            if(lead_com != None):
+                print_to_gui(lead_com)
+                lead_once = True
+                commentary_cooldown = 60
+        #comeback check
+        elif(commentary_cooldown <= 0 and lead_once == True):
+            comeback_com = comeback_comment()
+            if(comeback_com != None):
+                print_to_gui(comeback_com)
+                lead_once = False
+                commentary_cooldown = 60
         #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
         if(commentary_cooldown <= -300):
             print_to_gui(get_support_commentary(data_list[1]))
@@ -120,6 +139,7 @@ full_filename = watch_for_create(".")
 LSTM_batch1 = []
 LSTM_batch2 = []
 commentary_cooldown = 300
+lead_once = False
 connection = Queue()
 commentary_queue = Queue()
 stats_queue = Queue()
@@ -145,9 +165,6 @@ with open(full_filename, "rb") as replay:
     Gui_thread.start()
 
     #intro context
-    print("And the match begins!")
-    print(match.player1_character, "vs.", match.player2_character, "on", match.current_stage)
-    print(get_matchup_score(match.player1_character, match.player2_character))
     print_to_gui(("And the match begins!\n" +
     match.player1_character + " vs. " + match.player2_character + " on " + match.current_stage + "\n" +
     get_matchup_score(match.player1_character, match.player2_character)))
@@ -188,7 +205,30 @@ with open(full_filename, "rb") as replay:
                     stocks = [player1_data.stocks_remaining, player2_data.stocks_remaining]
                     connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
                     connection.join()
-                main_commentary_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data_dep + player2_data_dep)
+                if(match.current_stage in translator.legal_stages):
+                    main_commentary_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data_dep + player2_data_dep)
+                else:
+                    if(commentary_cooldown <= 0):
+                        print_to_gui(choose_list(["Wait a second... this stage isn't even legal!",
+                                                "I don't commentate for casuals.",
+                                                "Don't forget to turn items on...",
+                                                "Thank god 8 player smash wasn't a thing yet.",
+                                                "I hear there's a pretty cool adventure mode in this.",
+                                                "Oh great, there's nothing on TV either.",
+                                                "I'm gonna grab a coffee real quick.",
+                                                "Is it over yet?",
+                                                "If I don't hear a shine in the next 5 minutes I might just lose it.",
+                                                "At least the music is good!",
+                                                "I went 0-2 in bracket for this!?",
+                                                "Where's Vish, this is perfect for him.",
+                                                "NICE BACKAIR! Or something like that.",
+                                                "You should play Poke Floats next, I might try for that one."]))
+                        if(connection.empty()):
+                            connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
+                            connection.join()
+                        commentary_cooldown = 500
+                    else:
+                        commentary_cooldown -= 1
         elif(command == GAME_END):
             data = read_frame(replay, 1)
             game_end_data.game_end_method = hex_to_int([data[0]])
@@ -199,6 +239,7 @@ with open(full_filename, "rb") as replay:
                     print_to_gui("Player 1 takes the game!")
             else:
                 print_to_gui("No Contest!")
+            time.sleep(10)
             flag = 1
 
     replay.close()

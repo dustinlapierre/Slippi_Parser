@@ -192,6 +192,15 @@ stage_index = {
     32 : "Final Destination"
 }
 
+legal_stages = {
+    "Fountain of Dreams" : 2,
+    "Pokemon Stadium" : 3,
+    "Yoshi's Story" : 8,
+    "Dreamland 64" : 28,
+    "Battlefield" : 31,
+    "Final Destination" : 32
+}
+
 #unfinished
 #skipped unimportant stuff after 111
 action_state_id = {

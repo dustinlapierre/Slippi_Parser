@@ -119,7 +119,6 @@ class match_info:
     player2_character = ""
     stage = ""
 
-
 #ALL GLOBAL DATA HOLDERS -------------------
 #data holders
 #variable values will be updated each time one of these
