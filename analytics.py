@@ -99,9 +99,6 @@ def add_history(com_number):
         del commentary_history[0]
         commentary_history.append(com_number)
 
-def flatten(x, min, max):
-    return ((x-min) / (max-min))
-
 def select_commentary_by_weight(history):
     weights = []
     #weight stage control

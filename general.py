@@ -11,3 +11,6 @@ def choose(option1, option2):
 def choose_list(choice_list):
     random_index = randrange(0, len(choice_list))
     return choice_list[random_index]
+
+def flatten(x, min, max):
+    return ((x-min) / (max-min))
