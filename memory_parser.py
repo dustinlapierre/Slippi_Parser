@@ -108,7 +108,7 @@ def main_commentary_update(data_list):
             commentary_cooldown = 60
 
     update_analytics_frame_buffer()
-    send_stats_gui(stats_queue)
+    #send_stats_gui(stats_queue)
 
 def print_to_gui(text):
     if(commentary_queue.empty()):
@@ -119,7 +119,7 @@ def print_to_gui(text):
 full_filename = watch_for_create(".")
 LSTM_batch1 = []
 LSTM_batch2 = []
-commentary_cooldown = 120
+commentary_cooldown = 300
 connection = Queue()
 commentary_queue = Queue()
 stats_queue = Queue()
@@ -148,9 +148,9 @@ with open(full_filename, "rb") as replay:
     print("And the match begins!")
     print(match.player1_character, "vs.", match.player2_character, "on", match.current_stage)
     print(get_matchup_score(match.player1_character, match.player2_character))
-    #print_to_gui(("And the match begins!\n" +
-    #match.player1_character + " vs. " + match.player2_character + " on " + match.current_stage + "\n" +
-    #get_matchup_score(match.player1_character, match.player2_character)))
+    print_to_gui(("And the match begins!\n" +
+    match.player1_character + " vs. " + match.player2_character + " on " + match.current_stage + "\n" +
+    get_matchup_score(match.player1_character, match.player2_character)))
 
     #frame update
     command = ""

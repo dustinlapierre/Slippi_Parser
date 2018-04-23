@@ -1,14 +1,18 @@
-structures for player data to clean up code and remove magic numbers
 shield pressure (add attack state check)
 
 main commentary:
     -crossups? (LSTM potential)
 support commentary:
+    -add a check to make sure neutral wins is at a significantly large number
     -average percentage per stock
 character commentary:
     -wobble check
     -knee or falcon punch check
     -peach stitch check, if carrying an item and item is stitch? If not maybe a dsmash check and make a blender joke.
+
+
+
+
 
 REFACTORING:
 major:
