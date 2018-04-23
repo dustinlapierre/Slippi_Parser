@@ -17,28 +17,6 @@ from gui import GuiThreadStart
 
 #Written by Dustin Lapierre copyright 04/18/2018
 
-def post_frame_as_list():
-    data = []
-    data.append(post_frame_data.player_index)
-    data.append(post_frame_data.action_state)
-    data.append(post_frame_data.x_pos)
-    data.append(post_frame_data.y_pos)
-    data.append(post_frame_data.facing_direction)
-    data.append(post_frame_data.percent)
-    data.append(post_frame_data.shield_size)
-    data.append(post_frame_data.stocks_remaining)
-    return data
-
-def update_player_data(player_data):
-    player_data.player_index = post_frame_data.player_index
-    player_data.action_state = post_frame_data.action_state
-    player_data.x_pos = post_frame_data.x_pos
-    player_data.y_pos = post_frame_data.y_pos
-    player_data.facing_direction = post_frame_data.facing_direction
-    player_data.percent = post_frame_data.percent
-    player_data.shield_size = post_frame_data.shield_size
-    player_data.stocks_remaining = post_frame_data.stocks_remaining
-
 def main_commentary_update(data_list):
     global commentary_cooldown
     global lead_once
@@ -135,7 +113,7 @@ def print_to_gui(text):
         commentary_queue.join()
 
 #shared mem and data holders
-full_filename = watch_for_create(".")
+full_filename = watch_for_create("../")
 LSTM_batch1 = []
 LSTM_batch2 = []
 commentary_cooldown = 300
@@ -239,7 +217,7 @@ with open(full_filename, "rb") as replay:
                     print_to_gui("Player 1 takes the game!")
             else:
                 print_to_gui("No Contest!")
-            time.sleep(10)
+            time.sleep(5)
             flag = 1
 
     replay.close()

@@ -119,6 +119,28 @@ class match_info:
     player2_character = ""
     stage = ""
 
+def post_frame_as_list():
+    data = []
+    data.append(post_frame_data.player_index)
+    data.append(post_frame_data.action_state)
+    data.append(post_frame_data.x_pos)
+    data.append(post_frame_data.y_pos)
+    data.append(post_frame_data.facing_direction)
+    data.append(post_frame_data.percent)
+    data.append(post_frame_data.shield_size)
+    data.append(post_frame_data.stocks_remaining)
+    return data
+
+def update_player_data(player_data):
+    player_data.player_index = post_frame_data.player_index
+    player_data.action_state = post_frame_data.action_state
+    player_data.x_pos = post_frame_data.x_pos
+    player_data.y_pos = post_frame_data.y_pos
+    player_data.facing_direction = post_frame_data.facing_direction
+    player_data.percent = post_frame_data.percent
+    player_data.shield_size = post_frame_data.shield_size
+    player_data.stocks_remaining = post_frame_data.stocks_remaining
+
 #ALL GLOBAL DATA HOLDERS -------------------
 #data holders
 #variable values will be updated each time one of these
