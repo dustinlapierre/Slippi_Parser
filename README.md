@@ -1,1 +1,1 @@
-# Slippi_Parser
+# Randall the AI Melee commentator
