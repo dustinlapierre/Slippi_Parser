@@ -167,5 +167,4 @@ def GuiThreadStart(character1, character2, current_stage, connection, commentary
     stage = current_stage
     shared_queue = connection
     shared_commentary_queue = commentary_queue
-
-GuiApp().run()
+    GuiApp().run()

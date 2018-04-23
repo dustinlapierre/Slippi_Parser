@@ -105,7 +105,6 @@ def main_commentary_update(data_list):
             commentary_cooldown = 60
 
     update_analytics_frame_buffer()
-    #send_stats_gui(stats_queue)
 
 def print_to_gui(text):
     if(commentary_queue.empty()):
@@ -120,7 +119,6 @@ commentary_cooldown = 300
 lead_once = False
 connection = Queue()
 commentary_queue = Queue()
-stats_queue = Queue()
 
 #live parse the newly created file
 with open(full_filename, "rb") as replay:
@@ -138,7 +136,7 @@ with open(full_filename, "rb") as replay:
     Gui_thread = threading.Thread(target=GuiThreadStart, args=
     (match.player1_character,
     match.player2_character,
-    match.current_stage, connection, commentary_queue, stats_queue))
+    match.current_stage, connection, commentary_queue))
     Gui_thread.daemon = True
     Gui_thread.start()
 
@@ -217,7 +215,8 @@ with open(full_filename, "rb") as replay:
                     print_to_gui("Player 1 takes the game!")
             else:
                 print_to_gui("No Contest!")
-            time.sleep(5)
+            print_to_gui(print_final_stats())
+            time.sleep(10)
             flag = 1
 
     replay.close()
