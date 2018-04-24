@@ -16,18 +16,17 @@ from gui import GuiThreadStart
 
 #Written by Dustin Lapierre copyright 04/18/2018
 
-def main_commentary_update(data_list):
+def main_commentary_update():
     global commentary_cooldown
     global lead_once
     commentary_cooldown -= 1
-    #data_list: [stage, frame num, (player index, action, x, y, direction, percent, shield, stocks) x 2]
     update_analytics()
 
     #doesn't speak when on cooldown
     #gives people time to read or text to speach to talk
     if(commentary_cooldown <= 0):
-        normalized_data_player1 = LSTM.normalize(data_list[3:7])
-        normalized_data_player2 = LSTM.normalize(data_list[11:15])
+        normalized_data_player1 = LSTM.normalize(player1_data.as_LSTM_list())
+        normalized_data_player2 = LSTM.normalize(player2_data.as_LSTM_list())
 
         #LSTM dash dance check
         if(len(LSTM_batch1) < 120):
@@ -100,7 +99,7 @@ def main_commentary_update(data_list):
                 commentary_cooldown = 60
         #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
         if(commentary_cooldown <= -300):
-            print_to_gui(get_support_commentary(data_list[1]))
+            print_to_gui(get_support_commentary(post_frame_data.frame_number))
             commentary_cooldown = 60
 
     update_analytics_frame_buffer()
@@ -109,6 +108,10 @@ def print_to_gui(text):
     if(commentary_queue.empty()):
         commentary_queue.put(text)
         commentary_queue.join()
+
+def update_gui_stocks():
+    if(connection.empty()):
+        connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
 
 #shared mem and data holders
 full_filename = watch_for_create("../")
@@ -127,9 +130,9 @@ with open(full_filename, "rb") as replay:
     data = read_frame(replay, 320)
     game_start_data.parse_game_start(data)
 
-    match.player1_character = translator.external_character_id[game_start_data.character_ID_port1]
-    match.player2_character = translator.external_character_id[game_start_data.character_ID_port2]
-    match.current_stage = translator.stage_index[game_start_data.stage]
+    match.set_match_context(translator.external_character_id[game_start_data.character_ID_port1],
+    translator.external_character_id[game_start_data.character_ID_port2],
+    translator.stage_index[game_start_data.stage])
 
     #GUI threading
     Gui_thread = threading.Thread(target=GuiThreadStart, args=
@@ -167,19 +170,22 @@ with open(full_filename, "rb") as replay:
         elif(command == POST_FRAME_UPDATE):
             data = read_frame(replay, 33)
             post_frame_data.parse_post_frame(data)
+
             #copy data into player container
             if(post_frame_data.player_index == 0):
                 player1_data.update_player_data()
             else:
                 player2_data.update_player_data()
+
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
+                #update stocks if a change has occured
                 if(connection.empty() and stocks != [player1_data.stocks_remaining, player2_data.stocks_remaining]):
                     stocks = [player1_data.stocks_remaining, player2_data.stocks_remaining]
                     connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
                     connection.join()
                 if(match.current_stage in translator.legal_stages):
-                    main_commentary_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data.as_list() + player2_data.as_list())
+                    main_commentary_update()
                 else:
                     if(commentary_cooldown <= 0):
                         print_to_gui(choose_list(["Wait a second... this stage isn't even legal!",
@@ -196,9 +202,7 @@ with open(full_filename, "rb") as replay:
                                                 "Where's Vish, this is perfect for him.",
                                                 "NICE BACKAIR! Or something like that.",
                                                 "You should play Poke Floats next, I might try for that one."]))
-                        if(connection.empty()):
-                            connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
-                            connection.join()
+                        update_gui_stocks()
                         commentary_cooldown = 500
                     else:
                         commentary_cooldown -= 1

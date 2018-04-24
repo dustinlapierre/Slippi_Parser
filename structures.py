@@ -209,11 +209,24 @@ class player_data:
         data.append(self.shield_size)
         data.append(self.stocks_remaining)
         return data
+    #returns list containing LSTM input
+    def as_LSTM_list(self):
+        data = []
+        data.append(self.action_state)
+        data.append(self.x_pos)
+        data.append(self.y_pos)
+        data.append(self.facing_direction)
+        return data
 
 class match_info:
-    player1_character = ""
-    player2_character = ""
-    stage = ""
+    def __init__(self):
+        self.player1_character = ""
+        self.player2_character = ""
+        self.current_stage = ""
+    def set_match_context(self, character1, character2, stage):
+        self.player1_character = character1
+        self.player2_character = character2
+        self.current_stage = stage
 
 #ALL GLOBAL DATA HOLDERS -------------------
 #data holders
@@ -228,7 +241,3 @@ player2_analytics = player_analytics()
 player1_data = player_data()
 player2_data = player_data()
 match = match_info()
-
-#depricated only for use in LSTM update
-player1_data_dep = []
-player2_data_dep = []

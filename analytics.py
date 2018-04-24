@@ -311,25 +311,6 @@ def get_support_commentary(frame_number):
         else:
             return "Both players have been pretty efficient with their kills."
 
-def get_matchup_score(player1_character, player2_character):
-    #this will eventually return a string discussing the matchup from player 1's perspective
-    if(player1_character in translator.matchup_guide and player2_character in translator.matchup_guide):
-        match_score = translator.matchup_guide[player1_character][player2_character]
-        result_string = "This matchup is "
-        if(match_score == 0):
-            result_string += "fairly even."
-        elif(match_score == 1):
-            result_string += ("pretty good for " + player1_character + ".")
-        elif(match_score == 2):
-            result_string += ("really good for " + player1_character + ".")
-        elif(match_score == -1):
-            result_string += ("pretty bad for " + player1_character + ".")
-        elif(match_score == -2):
-            result_string += ("extremely bad for " + player1_character + ".")
-        return result_string
-    else:
-        return "This is a matchup we don't see often!"
-
 def check_stage_control():
     #stage control - when you are inside middle 100 pixels and opponent outside it
     if(abs(player1_data.x_pos) <= 50 and abs(player2_data.x_pos) > 50):
@@ -469,6 +450,25 @@ def comeback_comment():
     if(player1_data.stocks_remaining == player2_data.stocks_remaining):
         return "What an incredible comeback!"
     return None
+
+def get_matchup_score(player1_character, player2_character):
+    #this will eventually return a string discussing the matchup from player 1's perspective
+    if(player1_character in translator.matchup_guide and player2_character in translator.matchup_guide):
+        match_score = translator.matchup_guide[player1_character][player2_character]
+        result_string = "This matchup is "
+        if(match_score == 0):
+            result_string += "fairly even."
+        elif(match_score == 1):
+            result_string += ("pretty good for " + player1_character + ".")
+        elif(match_score == 2):
+            result_string += ("really good for " + player1_character + ".")
+        elif(match_score == -1):
+            result_string += ("pretty bad for " + player1_character + ".")
+        elif(match_score == -2):
+            result_string += ("extremely bad for " + player1_character + ".")
+        return result_string
+    else:
+        return "This is a matchup we don't see often!"
 
 def check_shield_pressure():
     #returns boolean tuple, (player1, player2)
