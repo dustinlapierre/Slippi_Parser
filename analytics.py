@@ -214,7 +214,7 @@ def get_support_commentary(frame_number):
             if(player1_nooch > 0.60):
                 output = choose("Player 1 is really dominating in neutral",
                                 "Player 1's neutral game is looking strong")
-                if(player1_data.stocks_remaining < player_data.stocks_remaining):
+                if(player1_data.stocks_remaining < player2_data.stocks_remaining):
                     output += ", but Player 2 seems to be getting more off their neutral wins."
                 return output
             elif(player2_nooch > 0.60):

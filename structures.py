@@ -1,4 +1,4 @@
-from parse_functions import *
+from general import *
 
 #command bytes
 EVENT_PAYLOADS = "0x35"
@@ -178,41 +178,42 @@ class player_analytics:
     recovery_state = False
 
 class player_data:
-    player_index = 0
-    action_state = 0
-    x_pos = 0.0
-    y_pos = 0.0
-    facing_direction = 1
-    percent = 0.0
-    shield_size = 0.0
-    stocks_remaining = 0
+    def __init__(self):
+        self.player_index = 0
+        self.action_state = 0
+        self.x_pos = 0.0
+        self.y_pos = 0.0
+        self.facing_direction = 1
+        self.percent = 0.0
+        self.shield_size = 0.0
+        self.stocks_remaining = 0
+    #Updates members based on current post frame data
+    def update_player_data(self):
+        self.player_index = post_frame_data.player_index
+        self.action_state = post_frame_data.action_state
+        self.x_pos = post_frame_data.x_pos
+        self.y_pos = post_frame_data.y_pos
+        self.facing_direction = post_frame_data.facing_direction
+        self.percent = post_frame_data.percent
+        self.shield_size = post_frame_data.shield_size
+        self.stocks_remaining = post_frame_data.stocks_remaining
+    #returns list containing members in order
+    def as_list(self):
+        data = []
+        data.append(self.player_index)
+        data.append(self.action_state)
+        data.append(self.x_pos)
+        data.append(self.y_pos)
+        data.append(self.facing_direction)
+        data.append(self.percent)
+        data.append(self.shield_size)
+        data.append(self.stocks_remaining)
+        return data
 
 class match_info:
     player1_character = ""
     player2_character = ""
     stage = ""
-
-def post_frame_as_list():
-    data = []
-    data.append(post_frame_data.player_index)
-    data.append(post_frame_data.action_state)
-    data.append(post_frame_data.x_pos)
-    data.append(post_frame_data.y_pos)
-    data.append(post_frame_data.facing_direction)
-    data.append(post_frame_data.percent)
-    data.append(post_frame_data.shield_size)
-    data.append(post_frame_data.stocks_remaining)
-    return data
-
-def update_player_data(player_data):
-    player_data.player_index = post_frame_data.player_index
-    player_data.action_state = post_frame_data.action_state
-    player_data.x_pos = post_frame_data.x_pos
-    player_data.y_pos = post_frame_data.y_pos
-    player_data.facing_direction = post_frame_data.facing_direction
-    player_data.percent = post_frame_data.percent
-    player_data.shield_size = post_frame_data.shield_size
-    player_data.stocks_remaining = post_frame_data.stocks_remaining
 
 #ALL GLOBAL DATA HOLDERS -------------------
 #data holders

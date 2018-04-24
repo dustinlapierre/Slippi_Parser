@@ -7,7 +7,6 @@ import translator
 from structures import *
 from analytics import *
 from commentary_statements import *
-from parse_functions import *
 from general import *
 from file_detection import watch_for_create
 
@@ -170,11 +169,9 @@ with open(full_filename, "rb") as replay:
             post_frame_data.parse_post_frame(data)
             #copy data into player container
             if(post_frame_data.player_index == 0):
-                player1_data_dep = post_frame_as_list()
-                update_player_data(player1_data)
+                player1_data.update_player_data()
             else:
-                player2_data_dep = post_frame_as_list()
-                update_player_data(player2_data)
+                player2_data.update_player_data()
             #if both player's data stored, send frame to LSTM
             if(post_frame_data.player_index == 1):
                 if(connection.empty() and stocks != [player1_data.stocks_remaining, player2_data.stocks_remaining]):
@@ -182,7 +179,7 @@ with open(full_filename, "rb") as replay:
                     connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
                     connection.join()
                 if(match.current_stage in translator.legal_stages):
-                    main_commentary_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data_dep + player2_data_dep)
+                    main_commentary_update([game_start_data.stage] + [post_frame_data.frame_number] + player1_data.as_list() + player2_data.as_list())
                 else:
                     if(commentary_cooldown <= 0):
                         print_to_gui(choose_list(["Wait a second... this stage isn't even legal!",
