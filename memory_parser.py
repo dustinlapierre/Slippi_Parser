@@ -126,7 +126,7 @@ with open(full_filename, "rb") as replay:
     replay.seek(30)
     #game start
     data = read_frame(replay, 320)
-    parse_game_start(data)
+    game_start_data.parse_game_start(data)
 
     match.player1_character = translator.external_character_id[game_start_data.character_ID_port1]
     match.player2_character = translator.external_character_id[game_start_data.character_ID_port2]
@@ -164,10 +164,10 @@ with open(full_filename, "rb") as replay:
         #parse command
         if(command == PRE_FRAME_UPDATE):
             data = read_frame(replay, 58)
-            parse_pre_frame(data)
+            pre_frame_data.parse_pre_frame(data)
         elif(command == POST_FRAME_UPDATE):
             data = read_frame(replay, 33)
-            parse_post_frame(data)
+            post_frame_data.parse_post_frame(data)
             #copy data into player container
             if(post_frame_data.player_index == 0):
                 player1_data_dep = post_frame_as_list()
