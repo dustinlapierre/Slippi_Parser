@@ -2,12 +2,10 @@ import threading
 from queue import Queue
 import time
 
-import LSTM
 import translator
 from structures import *
-from analytics import *
-from commentary_statements import *
 from general import *
+from randall import *
 from file_detection import watch_for_create
 
 import sys
@@ -16,111 +14,11 @@ from gui import GuiThreadStart
 
 #Written by Dustin Lapierre copyright 04/18/2018
 
-def main_commentary_update():
-    global commentary_cooldown
-    global lead_once
-    commentary_cooldown -= 1
-    update_analytics()
-
-    #doesn't speak when on cooldown
-    #gives people time to read or text to speach to talk
-    if(commentary_cooldown <= 0):
-        normalized_data_player1 = LSTM.normalize(player1_data.as_LSTM_list())
-        normalized_data_player2 = LSTM.normalize(player2_data.as_LSTM_list())
-
-        #LSTM dash dance check
-        if(len(LSTM_batch1) < 120):
-            LSTM_batch1.append(normalized_data_player1)
-        else:
-            pred = LSTM.make_prediction(LSTM_batch1)
-            del LSTM_batch1[:]
-            if(pred >= 0.85):
-                print_to_gui(choose("Player 1 is trying to bait out a commit with that dash dance!",
-                                    "Player 1 is dash dancing around trying to get player 2 to approach."))
-                commentary_cooldown = 30
-        if(len(LSTM_batch2) < 120):
-            LSTM_batch2.append(normalized_data_player2)
-        else:
-            pred = LSTM.make_prediction(LSTM_batch2)
-            del LSTM_batch2[:]
-            if(pred >= 0.85):
-                print_to_gui(choose("Player 2 is trying to bait out a commit with that dash dance!",
-                                    "Player 2 is dash dancing around trying to get player 1 to approach."))
-                commentary_cooldown = 30
-
-        #shield pressure check
-        if(commentary_cooldown <= 0):
-            pressure = check_shield_pressure()
-            if(pressure[0] == True):
-                print_to_gui(choose("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.",
-                                    "Player 2 is under a lot of pressure, their shield might break!"))
-                commentary_cooldown = 60
-            elif(pressure[1] == True):
-                print_to_gui(choose("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.",
-                                    "Player 2 is under a lot of pressure, their shield might break!"))
-                commentary_cooldown = 60
-        #character specific stuff
-        if(commentary_cooldown <= 0):
-            character_com = character_specific_commentary()
-            if(character_com != None):
-                print_to_gui(character_com)
-                commentary_cooldown = 60
-        #taunt check
-        if(commentary_cooldown <= 0):
-            taunt_com = taunt_comment()
-            if(taunt_com != None):
-                print_to_gui(taunt_com)
-                commentary_cooldown = 120
-        #taunt to get bodied commentary
-        if(commentary_cooldown <= 0):
-            tauntb_com = taunt_bodied_check()
-            if(tauntb_com != None):
-                print_to_gui(tauntb_com)
-                commentary_cooldown = 120
-        #recovery check
-        if(commentary_cooldown <= 0):
-            recov_com = recovery_comment()
-            if(recov_com != None):
-                print_to_gui(recov_com)
-                commentary_cooldown = 60
-        #huge lead check
-        if(commentary_cooldown <= 0 and lead_once == False):
-            lead_com = huge_lead_comment()
-            if(lead_com != None):
-                print_to_gui(lead_com)
-                lead_once = True
-                commentary_cooldown = 60
-        #comeback check
-        elif(commentary_cooldown <= 0 and lead_once == True):
-            comeback_com = comeback_comment()
-            if(comeback_com != None):
-                print_to_gui(comeback_com)
-                lead_once = False
-                commentary_cooldown = 60
-        #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
-        if(commentary_cooldown <= -300):
-            print_to_gui(get_support_commentary(post_frame_data.frame_number))
-            commentary_cooldown = 60
-
-    update_analytics_frame_buffer()
-
-def print_to_gui(text):
-    if(commentary_queue.empty()):
-        commentary_queue.put(text)
-        commentary_queue.join()
-
-def update_gui_stocks():
-    if(connection.empty()):
-        connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
-
 #shared mem and data holders
 full_filename = watch_for_create("../")
-LSTM_batch1 = []
-LSTM_batch2 = []
-commentary_cooldown = 300
-lead_once = False
 connection = Queue()
 commentary_queue = Queue()
+randall = randall_commentator(commentary_queue)
 
 #live parse the newly created file
 with open(full_filename, "rb") as replay:
@@ -145,7 +43,7 @@ with open(full_filename, "rb") as replay:
     #intro context
     print_to_gui(("And the match begins!\n" +
     match.player1_character + " vs. " + match.player2_character + " on " + match.current_stage + "\n" +
-    get_matchup_score(match.player1_character, match.player2_character)))
+    get_matchup_score(match.player1_character, match.player2_character)), commentary_queue)
 
     #frame update
     command = ""
@@ -185,39 +83,21 @@ with open(full_filename, "rb") as replay:
                     connection.put([player1_data.stocks_remaining, player2_data.stocks_remaining])
                     connection.join()
                 if(match.current_stage in translator.legal_stages):
-                    main_commentary_update()
+                    randall.main_commentary_update()
                 else:
-                    if(commentary_cooldown <= 0):
-                        print_to_gui(choose_list(["Wait a second... this stage isn't even legal!",
-                                                "I don't commentate for casuals.",
-                                                "Don't forget to turn items on...",
-                                                "Thank god 8 player smash wasn't a thing yet.",
-                                                "I hear there's a pretty cool adventure mode in this.",
-                                                "Oh great, there's nothing on TV either.",
-                                                "I'm gonna grab a coffee real quick.",
-                                                "Is it over yet?",
-                                                "If I don't hear a shine in the next 5 minutes I might just lose it.",
-                                                "At least the music is good!",
-                                                "I went 0-2 in bracket for this!?",
-                                                "Where's Vish, this is perfect for him.",
-                                                "NICE BACKAIR! Or something like that.",
-                                                "You should play Poke Floats next, I might try for that one."]))
-                        update_gui_stocks()
-                        commentary_cooldown = 500
-                    else:
-                        commentary_cooldown -= 1
+                    randall.joke_commentary_update()
         elif(command == GAME_END):
             data = read_frame(replay, 1)
             game_end_data.game_end_method = hex_to_int([data[0]])
             if(game_end_data.game_end_method == 3):
                 if(player1_data.stocks_remaining == 0):
-                    print_to_gui("Player 2 takes the game!")
+                    print_to_gui("Player 2 takes the game!", commentary_queue)
                 else:
-                    print_to_gui("Player 1 takes the game!")
+                    print_to_gui("Player 1 takes the game!", commentary_queue)
             else:
-                print_to_gui("No Contest!")
-            print_to_gui(print_final_stats())
-            time.sleep(10)
+                print_to_gui("No Contest!", commentary_queue)
+            print_to_gui(print_final_stats(), commentary_queue)
+            time.sleep(8)
             flag = 1
 
     replay.close()
