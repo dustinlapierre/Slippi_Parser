@@ -50,16 +50,8 @@ with open(full_filename, "rb") as replay:
     flag = 0
     stocks = [0,0]
     while(flag != 1):
-        #read command byte
-        while(1):
-            position = replay.tell()
-            byte = replay.read(1)
-            if(not byte):
-                time.sleep(1/120)
-                replay.seek(position)
-            else:
-                command = hex(ord(byte))
-                break;
+        #get command byte
+        command = read_command_byte(replay)
 
         #parse command
         if(command == PRE_FRAME_UPDATE):
@@ -89,14 +81,8 @@ with open(full_filename, "rb") as replay:
         elif(command == GAME_END):
             data = read_frame(replay, 1)
             game_end_data.game_end_method = hex_to_int([data[0]])
-            if(game_end_data.game_end_method == 3):
-                if(player1_data.stocks_remaining == 0):
-                    print_to_gui("Player 2 takes the game!", commentary_queue)
-                else:
-                    print_to_gui("Player 1 takes the game!", commentary_queue)
-            else:
-                print_to_gui("No Contest!", commentary_queue)
-            print_to_gui(print_final_stats(), commentary_queue)
+            #print final results and give time to read before close
+            randall.show_results()
             time.sleep(8)
             flag = 1
 

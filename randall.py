@@ -115,3 +115,13 @@ class randall_commentator:
             self.commentary_cooldown = 500
         else:
             self.commentary_cooldown -= 1
+
+    def show_results(self):
+        if(game_end_data.game_end_method == 3):
+            if(player1_data.stocks_remaining == 0):
+                print_to_gui("Player 2 takes the game!", self.commentary_queue)
+            else:
+                print_to_gui("Player 1 takes the game!", self.commentary_queue)
+        else:
+            print_to_gui("No Contest!", self.commentary_queue)
+        print_to_gui(print_final_stats(), self.commentary_queue)
