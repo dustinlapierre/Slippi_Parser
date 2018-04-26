@@ -116,6 +116,11 @@ class randall_commentator:
         else:
             self.commentary_cooldown -= 1
 
+    def print_intro(self):
+        print_to_gui(("And the match begins!\n" +
+        match.player1_character + " vs. " + match.player2_character + " on " + match.current_stage + "\n" +
+        get_matchup_score(match.player1_character, match.player2_character)), self.commentary_queue)
+
     def show_results(self):
         if(game_end_data.game_end_method == 3):
             if(player1_data.stocks_remaining == 0):

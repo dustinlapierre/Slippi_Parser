@@ -40,10 +40,8 @@ with open(full_filename, "rb") as replay:
     Gui_thread.daemon = True
     Gui_thread.start()
 
-    #intro context
-    print_to_gui(("And the match begins!\n" +
-    match.player1_character + " vs. " + match.player2_character + " on " + match.current_stage + "\n" +
-    get_matchup_score(match.player1_character, match.player2_character)), commentary_queue)
+    #intro and matchup statement
+    randall.print_intro()
 
     #frame update
     command = ""
@@ -51,7 +49,7 @@ with open(full_filename, "rb") as replay:
     stocks = [0,0]
     while(flag != 1):
         #get command byte
-        command = read_command_byte(replay)
+        command = read_frame(replay, 1)[0]
 
         #parse command
         if(command == PRE_FRAME_UPDATE):

@@ -46,17 +46,6 @@ def hex_to_float(hexlist):
         final += value[2:]
     return struct.unpack('!f', bytes.fromhex(final))[0]
 
-#read command byte
-def read_command_byte(replay):
-    while(1):
-        position = replay.tell()
-        byte = replay.read(1)
-        if(not byte):
-            time.sleep(1/120)
-            replay.seek(position)
-        else:
-            return hex(ord(byte))
-
 #read a given length of bytes from replay
 def read_frame(replay, length):
     data = []
