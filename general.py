@@ -3,6 +3,13 @@ from structures import *
 from ast import literal_eval
 import struct
 import time
+from queue import Queue
+
+#print a string in the gui, don't call more than once per frame
+def print_to_gui(text, queue):
+    if(queue.empty()):
+        queue.put(text)
+        queue.join()
 
 #pick between two things
 def choose(option1, option2):
