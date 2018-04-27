@@ -95,8 +95,8 @@ class MainView(FloatLayout):
                 commentary.append(index + '\n')
             shared_commentary_queue.task_done()
 
-        if len(commentary) > 15:
-            self.size_difference = len(commentary) - 15
+        if len(commentary) > 12:
+            self.size_difference = len(commentary) - 12
             for i in range(self.size_difference):
                     commentary.pop(0)
 

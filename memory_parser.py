@@ -45,9 +45,8 @@ with open(full_filename, "rb") as replay:
 
     #frame update
     command = ""
-    flag = 0
     stocks = [0,0]
-    while(flag != 1):
+    while(True):
         #get command byte
         command = read_frame(replay, 1)[0]
 
@@ -82,6 +81,6 @@ with open(full_filename, "rb") as replay:
             #print final results and give time to read before close
             randall.show_results()
             time.sleep(8)
-            flag = 1
+            break
 
     replay.close()

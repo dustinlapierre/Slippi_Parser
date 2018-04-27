@@ -51,51 +51,51 @@ class randall_commentator:
                 return choose("Player 2 is trying to bait out a commit with that dash dance!",
                                     "Player 2 is dash dancing around trying to get player 1 to approach.")
 
-            #shield pressure check
-            pressure = check_shield_pressure()
-            if(pressure[0] == True):
+        #shield pressure check
+        pressure = check_shield_pressure()
+        if(pressure[0] == True):
+            self.commentary_cooldown = 60
+            return choose("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.",
+                                "Player 2 is under a lot of pressure, their shield might break!")
+        elif(pressure[1] == True):
+            self.commentary_cooldown = 60
+            return choose("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.",
+                                "Player 2 is under a lot of pressure, their shield might break!")
+        #character specific stuff
+        character_com = character_specific_commentary()
+        if(character_com != None):
+            self.commentary_cooldown = 60
+            return character_com
+        #taunt check
+        taunt_com = taunt_comment()
+        if(taunt_com != None):
+            self.commentary_cooldown = 120
+            return taunt_com
+        #taunt to get bodied commentary
+        tauntb_com = taunt_bodied_check()
+        if(tauntb_com != None):
+            self.commentary_cooldown = 120
+            return tauntb_com
+        #recovery check
+        recov_com = recovery_comment()
+        if(recov_com != None):
+            self.commentary_cooldown = 60
+            return recov_com
+        #huge lead check
+        if(self.lead_once == False):
+            lead_com = huge_lead_comment()
+            if(lead_com != None):
+                self.lead_once = True
                 self.commentary_cooldown = 60
-                return choose("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.",
-                                    "Player 2 is under a lot of pressure, their shield might break!")
-            elif(pressure[1] == True):
+                return lead_com
+        #comeback check
+        elif(self.lead_once == True):
+            comeback_com = comeback_comment()
+            if(comeback_com != None):
+                self.lead_once = False
                 self.commentary_cooldown = 60
-                return choose("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.",
-                                    "Player 2 is under a lot of pressure, their shield might break!")
-            #character specific stuff
-            character_com = character_specific_commentary()
-            if(character_com != None):
-                self.commentary_cooldown = 60
-                return character_com
-            #taunt check
-            taunt_com = taunt_comment()
-            if(taunt_com != None):
-                self.commentary_cooldown = 120
-                return taunt_com
-            #taunt to get bodied commentary
-            tauntb_com = taunt_bodied_check()
-            if(tauntb_com != None):
-                self.commentary_cooldown = 120
-                return tauntb_com
-            #recovery check
-            recov_com = recovery_comment()
-            if(recov_com != None):
-                self.commentary_cooldown = 60
-                return recov_com
-            #huge lead check
-            if(self.lead_once == False):
-                lead_com = huge_lead_comment()
-                if(lead_com != None):
-                    self.lead_once = True
-                    self.commentary_cooldown = 60
-                    return lead_com
-            #comeback check
-            elif(self.lead_once == True):
-                comeback_com = comeback_comment()
-                if(comeback_com != None):
-                    self.lead_once = False
-                    self.commentary_cooldown = 60
-                    return comeback_com
-            return None
+                return comeback_com
+        return None
 
     def joke_commentary_update(self):
         if(self.commentary_cooldown <= 0):
