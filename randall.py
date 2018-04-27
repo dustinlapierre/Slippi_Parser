@@ -15,86 +15,87 @@ class randall_commentator:
         self.commentary_cooldown -= 1
         update_analytics()
 
+        if(self.commentary_cooldown <= 0):
+            new_comment = self.get_commentary_statement()
+            if(new_comment != None):
+                print_to_gui(new_comment, self.commentary_queue)
+        #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
+        if(self.commentary_cooldown <= -300):
+            print_to_gui(get_support_commentary(post_frame_data.frame_number), self.commentary_queue)
+            self.commentary_cooldown = 60
+        update_analytics_frame_buffer()
+
+    def get_commentary_statement(self):
         #doesn't speak when on cooldown
         #gives people time to read or text to speach to talk
-        if(self.commentary_cooldown <= 0):
-            normalized_data_player1 = LSTM.normalize(player1_data.as_LSTM_list())
-            normalized_data_player2 = LSTM.normalize(player2_data.as_LSTM_list())
+        normalized_data_player1 = LSTM.normalize(player1_data.as_LSTM_list())
+        normalized_data_player2 = LSTM.normalize(player2_data.as_LSTM_list())
 
-            #LSTM dash dance check
-            if(len(self.LSTM_batch1) < 120):
-                self.LSTM_batch1.append(normalized_data_player1)
-            else:
-                pred = LSTM.make_prediction(self.LSTM_batch1)
-                del self.LSTM_batch1[:]
-                if(pred >= 0.85):
-                    print_to_gui(choose("Player 1 is trying to bait out a commit with that dash dance!",
-                                        "Player 1 is dash dancing around trying to get player 2 to approach."), self.commentary_queue)
-                    self.commentary_cooldown = 30
-            if(len(self.LSTM_batch2) < 120):
-                self.LSTM_batch2.append(normalized_data_player2)
-            else:
-                pred = LSTM.make_prediction(self.LSTM_batch2)
-                del self.LSTM_batch2[:]
-                if(pred >= 0.85):
-                    print_to_gui(choose("Player 2 is trying to bait out a commit with that dash dance!",
-                                        "Player 2 is dash dancing around trying to get player 1 to approach."), self.commentary_queue)
-                    self.commentary_cooldown = 30
+        #LSTM dash dance check
+        if(len(self.LSTM_batch1) < 120):
+            self.LSTM_batch1.append(normalized_data_player1)
+        else:
+            pred = LSTM.make_prediction(self.LSTM_batch1)
+            del self.LSTM_batch1[:]
+            if(pred >= 0.85):
+                self.commentary_cooldown = 30
+                return choose("Player 1 is trying to bait out a commit with that dash dance!",
+                                    "Player 1 is dash dancing around trying to get player 2 to approach.")
+        if(len(self.LSTM_batch2) < 120):
+            self.LSTM_batch2.append(normalized_data_player2)
+        else:
+            pred = LSTM.make_prediction(self.LSTM_batch2)
+            del self.LSTM_batch2[:]
+            if(pred >= 0.85):
+                self.commentary_cooldown = 30
+                return choose("Player 2 is trying to bait out a commit with that dash dance!",
+                                    "Player 2 is dash dancing around trying to get player 1 to approach.")
 
             #shield pressure check
-            if(self.commentary_cooldown <= 0):
-                pressure = check_shield_pressure()
-                if(pressure[0] == True):
-                    print_to_gui(choose("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.",
-                                        "Player 2 is under a lot of pressure, their shield might break!"), self.commentary_queue)
-                    self.commentary_cooldown = 60
-                elif(pressure[1] == True):
-                    print_to_gui(choose("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.",
-                                        "Player 2 is under a lot of pressure, their shield might break!"), self.commentary_queue)
-                    self.commentary_cooldown = 60
+            pressure = check_shield_pressure()
+            if(pressure[0] == True):
+                self.commentary_cooldown = 60
+                return choose("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.",
+                                    "Player 2 is under a lot of pressure, their shield might break!")
+            elif(pressure[1] == True):
+                self.commentary_cooldown = 60
+                return choose("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.",
+                                    "Player 2 is under a lot of pressure, their shield might break!")
             #character specific stuff
-            if(self.commentary_cooldown <= 0):
-                character_com = character_specific_commentary()
-                if(character_com != None):
-                    print_to_gui(character_com, self.commentary_queue)
-                    self.commentary_cooldown = 60
+            character_com = character_specific_commentary()
+            if(character_com != None):
+                self.commentary_cooldown = 60
+                return character_com
             #taunt check
-            if(self.commentary_cooldown <= 0):
-                taunt_com = taunt_comment()
-                if(taunt_com != None):
-                    print_to_gui(taunt_com, self.commentary_queue)
-                    self.commentary_cooldown = 120
+            taunt_com = taunt_comment()
+            if(taunt_com != None):
+                self.commentary_cooldown = 120
+                return taunt_com
             #taunt to get bodied commentary
-            if(self.commentary_cooldown <= 0):
-                tauntb_com = taunt_bodied_check()
-                if(tauntb_com != None):
-                    print_to_gui(tauntb_com, self.commentary_queue)
-                    self.commentary_cooldown = 120
+            tauntb_com = taunt_bodied_check()
+            if(tauntb_com != None):
+                self.commentary_cooldown = 120
+                return tauntb_com
             #recovery check
-            if(self.commentary_cooldown <= 0):
-                recov_com = recovery_comment()
-                if(recov_com != None):
-                    print_to_gui(recov_com, self.commentary_queue)
-                    self.commentary_cooldown = 60
+            recov_com = recovery_comment()
+            if(recov_com != None):
+                self.commentary_cooldown = 60
+                return recov_com
             #huge lead check
-            if(self.commentary_cooldown <= 0 and self.lead_once == False):
+            if(self.lead_once == False):
                 lead_com = huge_lead_comment()
                 if(lead_com != None):
-                    print_to_gui(lead_com, self.commentary_queue)
                     self.lead_once = True
                     self.commentary_cooldown = 60
+                    return lead_com
             #comeback check
-            elif(self.commentary_cooldown <= 0 and self.lead_once == True):
+            elif(self.lead_once == True):
                 comeback_com = comeback_comment()
                 if(comeback_com != None):
-                    print_to_gui(comeback_com, self.commentary_queue)
                     self.lead_once = False
                     self.commentary_cooldown = 60
-            #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
-            if(self.commentary_cooldown <= -300):
-                print_to_gui(get_support_commentary(post_frame_data.frame_number), self.commentary_queue)
-                self.commentary_cooldown = 60
-        update_analytics_frame_buffer()
+                    return comeback_com
+            return None
 
     def joke_commentary_update(self):
         if(self.commentary_cooldown <= 0):
