@@ -82,9 +82,9 @@ def recovery_comment():
 
 def taunt_comment():
     if(player1_data.action_state in range(264, 266)):
-        return "Player 1 feeling themselves with that taunt."
+        return "Player 1 is feeling themselves with that taunt."
         player1_analytics.taunt_timer = 600
     elif(player2_data.action_state in range(264, 266)):
-        return "Player 2 feeling themselves with that taunt."
+        return "Player 2 is feeling themselves with that taunt."
         player2_analytics.taunt_timer = 600
     return None

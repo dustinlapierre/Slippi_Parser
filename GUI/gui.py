@@ -78,6 +78,7 @@ class MainView(FloatLayout):
     def update(self, *args):
         global player1_stocks
         global player2_stocks
+        global tts_input
 
         if(not shared_queue.empty()):
             stock_update = shared_queue.get()
@@ -89,15 +90,15 @@ class MainView(FloatLayout):
         self.p2_stocks = str(player2_stocks)
 
         #---------------CONSOLE----------------------------------------------
-        #tts = pyttsx3.init()
-        
+        tts = pyttsx3.init()
+
         if(not shared_commentary_queue.empty()):
             temp_list = []
             temp_list = shared_commentary_queue.get().split('\n')
             for index in temp_list:
                 commentary.append(index + '\n')
-                #tts.say(index)
-                #tts.runAndWait()
+                tts.say(index)
+                tts.runAndWait()
             shared_commentary_queue.task_done()
 
         if len(commentary) > 12:

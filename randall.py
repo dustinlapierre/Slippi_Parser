@@ -22,7 +22,7 @@ class randall_commentator:
         #Print support commentary if cooldown reaches -300 (5 seconds with nothing said)
         if(self.commentary_cooldown <= -300):
             print_to_gui(get_support_commentary(post_frame_data.frame_number), self.commentary_queue)
-            self.commentary_cooldown = 60
+            self.commentary_cooldown = 90
         update_analytics_frame_buffer()
 
     def get_commentary_statement(self):
@@ -38,7 +38,7 @@ class randall_commentator:
             pred = LSTM.make_prediction(self.LSTM_batch1)
             del self.LSTM_batch1[:]
             if(pred >= 0.85):
-                self.commentary_cooldown = 30
+                self.commentary_cooldown = 60
                 return choose("Player 1 is trying to bait out a commit with that dash dance!",
                                     "Player 1 is dash dancing around trying to get player 2 to approach.")
         if(len(self.LSTM_batch2) < 120):
@@ -47,53 +47,53 @@ class randall_commentator:
             pred = LSTM.make_prediction(self.LSTM_batch2)
             del self.LSTM_batch2[:]
             if(pred >= 0.85):
-                self.commentary_cooldown = 30
+                self.commentary_cooldown = 60
                 return choose("Player 2 is trying to bait out a commit with that dash dance!",
                                     "Player 2 is dash dancing around trying to get player 1 to approach.")
 
         #shield pressure check
         pressure = check_shield_pressure()
         if(pressure[0] == True):
-            self.commentary_cooldown = 60
+            self.commentary_cooldown = 90
             return choose("Great shield pressure coming from Player 1\nPlayer 2's shield is looking like a Skittle.",
                                 "Player 2 is under a lot of pressure, their shield might break!")
         elif(pressure[1] == True):
-            self.commentary_cooldown = 60
+            self.commentary_cooldown = 90
             return choose("Great shield pressure coming from Player 2\nPlayer 2's shield is looking like a Skittle.",
                                 "Player 2 is under a lot of pressure, their shield might break!")
         #character specific stuff
         character_com = character_specific_commentary()
         if(character_com != None):
-            self.commentary_cooldown = 60
+            self.commentary_cooldown = 90
             return character_com
         #taunt check
         taunt_com = taunt_comment()
         if(taunt_com != None):
-            self.commentary_cooldown = 120
+            self.commentary_cooldown = 150
             return taunt_com
         #taunt to get bodied commentary
         tauntb_com = taunt_bodied_check()
         if(tauntb_com != None):
-            self.commentary_cooldown = 120
+            self.commentary_cooldown = 150
             return tauntb_com
         #recovery check
         recov_com = recovery_comment()
         if(recov_com != None):
-            self.commentary_cooldown = 60
+            self.commentary_cooldown = 90
             return recov_com
         #huge lead check
         if(self.lead_once == False):
             lead_com = huge_lead_comment()
             if(lead_com != None):
                 self.lead_once = True
-                self.commentary_cooldown = 60
+                self.commentary_cooldown = 90
                 return lead_com
         #comeback check
         elif(self.lead_once == True):
             comeback_com = comeback_comment()
             if(comeback_com != None):
                 self.lead_once = False
-                self.commentary_cooldown = 60
+                self.commentary_cooldown = 90
                 return comeback_com
         return None
 
@@ -103,7 +103,7 @@ class randall_commentator:
                                     "I don't commentate for casuals.",
                                     "Don't forget to turn items on...",
                                     "Thank god 8 player smash wasn't a thing yet.",
-                                    "I hear there's a pretty cool adventure mode in this.",
+                                    "I hear there's a pretty cool adventure mode in this game.",
                                     "Oh great, there's nothing on TV either.",
                                     "I'm gonna grab a coffee real quick.",
                                     "Is it over yet?",
