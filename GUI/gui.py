@@ -4,6 +4,7 @@ from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import StringProperty, ListProperty
 from kivy.graphics import Canvas, Color, Rectangle
+import pyttsx3
 
 player1_character = "None"
 player2_character = "None"
@@ -88,11 +89,15 @@ class MainView(FloatLayout):
         self.p2_stocks = str(player2_stocks)
 
         #---------------CONSOLE----------------------------------------------
+        #tts = pyttsx3.init()
+        
         if(not shared_commentary_queue.empty()):
             temp_list = []
             temp_list = shared_commentary_queue.get().split('\n')
             for index in temp_list:
                 commentary.append(index + '\n')
+                #tts.say(index)
+                #tts.runAndWait()
             shared_commentary_queue.task_done()
 
         if len(commentary) > 12:
