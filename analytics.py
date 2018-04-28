@@ -273,7 +273,7 @@ def get_support_commentary(frame_number):
             return choose("Player 2 isn't allowing Player 1 to get their footing on stage.",
                             "Player 1 is spending a lot of time offstage")
         elif(player2_analytics.time_offstage > player1_analytics.time_offstage):
-            return choose("Player 1 isn't allowing Player 1 to get their footing on stage.",
+            return choose("Player 1 isn't allowing Player 2 to get their footing on stage.",
                             "Player 2 is spending a lot of time offstage")
         else:
             return "Hard to say which player has spent more time offstage."
