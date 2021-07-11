@@ -15,13 +15,13 @@ time though, I have added a statistical analysis module that allows
 Randall to study the data readily available in the memory to produce 
 filler commentary. This project was mostly abandoned in 2018.
 
-##Screenshots
+## Screenshots
 ![Example 1](https://github.com/dustinlapierre/Slippi_Parser/blob/master/images/Screen_AI1.png?raw=true)
 ![Example 2](https://github.com/dustinlapierre/Slippi_Parser/blob/master/images/Screen_AI2.png?raw=true)
 ![Example 3](https://github.com/dustinlapierre/Slippi_Parser/blob/master/images/Screen_AI3.png?raw=true)
 ![Game Emulation](https://github.com/dustinlapierre/Slippi_Parser/blob/master/images/game_screen.png?raw=true)
 
-##Setup instructions
+## Setup instructions
 I do not recommend trying to get this running, as it is quite a hassle.
 For Windows:
 1. Install Python
